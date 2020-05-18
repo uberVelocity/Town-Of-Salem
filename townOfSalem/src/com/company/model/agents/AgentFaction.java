@@ -1,6 +1,6 @@
 package com.company.model.agents;
 
-public enum AgentAffinity {
+public enum AgentFaction {
     VILLAGER,
     MOBSTER,
     UNDEFINED

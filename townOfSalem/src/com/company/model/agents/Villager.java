@@ -8,7 +8,7 @@ public class Villager extends Agent {
     private final static Logger LOGGER = Logger.getLogger(Villager.class.getName());
 
     public Villager(String name) {
-        super(name, AgentAffinity.VILLAGER);
+        super(name, AgentFaction.VILLAGER);
         LOGGER.log(Level.INFO, "Created a villager");
     }
 
