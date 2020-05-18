@@ -2,7 +2,7 @@ package com.company.model.agents;
 
 public abstract class Agent {
     private String name = "Townsman";
-    private AgentRole role = AgentRole.UNDEFINED;
+    private AgentAffinity role = AgentAffinity.UNDEFINED;
 
     public Agent() {}
 
@@ -10,7 +10,7 @@ public abstract class Agent {
         this.name = name;
     }
 
-    public Agent(String name, AgentRole role) {
+    public Agent(String name, AgentAffinity role) {
         this.name = name;
         this.role = role;
     }
@@ -27,11 +27,11 @@ public abstract class Agent {
         this.name = name;
     }
 
-    public AgentRole getRole() {
+    public AgentAffinity getRole() {
         return role;
     }
 
-    public void setRole(AgentRole role) {
+    public void setRole(AgentAffinity role) {
         this.role = role;
     }
 

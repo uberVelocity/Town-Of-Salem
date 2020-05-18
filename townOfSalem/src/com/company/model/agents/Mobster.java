@@ -8,7 +8,7 @@ public class Mobster extends Agent {
     private final static Logger LOGGER = Logger.getLogger(Mobster.class.getName());
 
     public Mobster(String name) {
-        super(name, AgentRole.MOBSTER);
+        super(name, AgentAffinity.MOBSTER);
         LOGGER.log(Level.INFO, "Created mobster");
     }
 

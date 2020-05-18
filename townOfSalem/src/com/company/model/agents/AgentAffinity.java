@@ -1,6 +1,6 @@
 package com.company.model.agents;
 
-public enum AgentRole {
+public enum AgentAffinity {
     VILLAGER,
     MOBSTER,
     UNDEFINED
