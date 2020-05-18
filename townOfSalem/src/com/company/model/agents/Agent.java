@@ -1,13 +1,20 @@
 package com.company.model.agents;
 
+import com.company.model.knowledge.Knowledge;
+
+import java.util.ArrayList;
+
 public abstract class Agent {
     private String name = "Townsman";
     private AgentFaction role = AgentFaction.UNDEFINED;
+    private ArrayList<String> factsKnown;
+    private Knowledge knowledge;
 
     public Agent() {}
 
     public Agent(String name) {
         this.name = name;
+        this.knowledge = new Knowledge();
     }
 
     public Agent(String name, AgentFaction role) {
@@ -31,8 +38,24 @@ public abstract class Agent {
         return role;
     }
 
+    public Knowledge getKnowledge() {
+        return knowledge;
+    }
+
+    public void setKnowledge(Knowledge knowledge) {
+        this.knowledge = knowledge;
+    }
+
     public void setRole(AgentFaction role) {
         this.role = role;
+    }
+
+    public ArrayList<String> getFactsKnown() {
+        return factsKnown;
+    }
+
+    public void setFactsKnown(ArrayList<String> factsKnown) {
+        this.factsKnown = factsKnown;
     }
 
     public String getName() {
