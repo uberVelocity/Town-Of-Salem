@@ -25,6 +25,7 @@ public class Main {
             System.out.println(e);
         }
 
+        controller.getModel().getCurrentWorld().gameCycle();
 
     }
 }
