@@ -1,9 +1,12 @@
 # Example definition of a class using the @property decorator for getters and setters.
 # Parent 'Agent' class that models the agents that participate in the game.
-class Agent:
-    # TODO: Determine whether the usage of the @property decorator is needed.
+# TODO: Determine whether the usage of the @property decorator is needed.
 
+from abc import ABC, abstractmethod
+
+class Agent(ABC):
     """Agent constructor which initializes an agent with a role and a name.""" 
+    @abstractmethod
     def __init__(self, role, name = 'Townsman'):
         self._role = role
         self._name = name
