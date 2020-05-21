@@ -7,7 +7,8 @@ import java.util.ArrayList;
 public abstract class Agent {
     private String name = "Townsman";
     private AgentFaction role = AgentFaction.UNDEFINED;
-    private ArrayList<String> factsKnown;
+
+    private ArrayList<Agent> visitors; // TODO: Think of a better way to represent interactions between Agents
     private Knowledge knowledge;
 
     public Agent() {}

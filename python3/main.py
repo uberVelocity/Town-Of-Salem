@@ -1,9 +1,8 @@
-from model.agents import agent
-from model.agents import agent_two
+import model.agents.agent_two as agents
 
 if __name__ == "__main__":
-    ag = agent.Agent('Mafioso')
-    ag2 = agent_two.Agent('Villager')
+    # Define a new Villager agent with the 'Investigator' role.
+    agent = agents.Villager('Investigator')
 
-    ag.talk()
-    ag2.talk()
+    # Test that the agent can talk.
+    agent.talk()
