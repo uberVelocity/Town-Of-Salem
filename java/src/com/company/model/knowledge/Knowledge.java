@@ -2,6 +2,8 @@ package com.company.model.knowledge;
 
 import java.util.ArrayList;
 
+// Todo: Knowledge are things that are known to be true (who the members of the Mafia are for Mafia members etc.)
+
 public class Knowledge {
     private ArrayList<Belief> beliefs;
 
