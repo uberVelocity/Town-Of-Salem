@@ -8,4 +8,14 @@ class Doctor(Villager):
 
     # Pick any agent from the game, including self and give them PROTECTED
     def interact(self, other_agent):
-        self.pick_random_agent(1).State = State.PROTECTED
+        other_agent.State = State.PROTECTED  # Give other_agent invulnerability for the night
+        if other_agent != self:
+            other_agent.visited_by.append(self)  # Append doctor to other agent's visited by list
+        else:
+            self.health = State.PROTECTED   # Give invulnerability to self
+            self.self_heals = 0
+
+    # Custom step of Doctor: is able to pick themselves
+    def step(self):
+        self.interact(self.pick_random_agent(0))
+        pass

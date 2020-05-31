@@ -23,29 +23,35 @@ class Health(enum.Enum):
     ALIVE = 1
 
 class State(enum.Enum):
-    ATTACKED = 0
-    PROTECTED = 1
+    NEUTRAL = 0
+    ATTACKED = 1
+    PROTECTED = 2
 
 class TownAgent(Agent):
-    """Agent that plays the game."""
-    
-    def __init__(self, unique_id, model, faction="Default", role="Default", status=Status.ALIVE):
+
+    # Agent that plays the game.
+    def __init__(self, unique_id, model, faction="Default", role="Default", health=Health.ALIVE, state=State.NEUTRAL):
         super().__init__(unique_id, model)
         self.faction = faction
         self.name = unique_id
         self.role = role
-        self.status = status
+        self.health = health
+        self.state = state
         self.agents = []
+        self.visited_by = []
 
     # Interact with other_agent depending on self.role
     # TODO: Include a strategy parameter that specifies the interaction strategy.
     def interact(self, other_agent):
-        print('I, agent ', self.name, ' am interacting with agent ', other_agent.name)
+        if not other_agent.is_alive():
+            print('Cannot interact with dead agent.')
+        else:
+            print('I, agent ', self.name, ' am interacting with agent ', other_agent.name)
 
-    # Gets a random agent from the game, excluding themself.
+    # Gets a random agent that is alive from the game. Exclude self picks agent that is not themself.
     def pick_random_agent(self, exclude_self):
         agent = self.agents[self.get_random()]
-        if exclude_self:
+        if not self.is_alive() | exclude_self:
             while agent == self:
                 agent = self.agents[self.get_random()]
         return agent
@@ -56,15 +62,17 @@ class TownAgent(Agent):
 
     # Debug function used to print the agent's name.
     def talk(self):
-        if self.status == Health.ALIVE:
+        if self.is_alive():
             print('Agent ', self.name, ' is talking.')
         else:
             print('Agent ', self.name, ' is dead.')
 
+    def is_alive(self):
+        return self.health == Health.ALIVE
+
     # The step each agent does during the game.
     def step(self):
-        # Night phase #
-        # During the night phase, the agent chooses another agent to interact with.
+        # Night phase: the agent chooses another agent to interact with.
         self.interact(self.pick_random_agent(1))
         pass
 
