@@ -28,8 +28,8 @@ class State(enum.Enum):
     PROTECTED = 2
 
 class TownAgent(Agent):
-    """Agent that plays the game."""
-    
+
+    # Agent that plays the game.
     def __init__(self, unique_id, model, faction="Default", role="Default", health=Health.ALIVE, state=State.NEUTRAL):
         super().__init__(unique_id, model)
         self.faction = faction
@@ -43,12 +43,15 @@ class TownAgent(Agent):
     # Interact with other_agent depending on self.role
     # TODO: Include a strategy parameter that specifies the interaction strategy.
     def interact(self, other_agent):
-        print('I, agent ', self.name, ' am interacting with agent ', other_agent.name)
+        if not other_agent.is_alive():
+            print('Cannot interact with dead agent.')
+        else:
+            print('I, agent ', self.name, ' am interacting with agent ', other_agent.name)
 
-    # Gets a random agent from the game, excluding themself.
+    # Gets a random agent that is alive from the game. Exclude self picks agent that is not themself.
     def pick_random_agent(self, exclude_self):
         agent = self.agents[self.get_random()]
-        if exclude_self:
+        if not self.is_alive() | exclude_self:
             while agent == self:
                 agent = self.agents[self.get_random()]
         return agent
@@ -59,10 +62,13 @@ class TownAgent(Agent):
 
     # Debug function used to print the agent's name.
     def talk(self):
-        if self.state == Health.ALIVE:
+        if self.is_alive():
             print('Agent ', self.name, ' is talking.')
         else:
             print('Agent ', self.name, ' is dead.')
+
+    def is_alive(self):
+        return self.health == Health.ALIVE
 
     # The step each agent does during the game.
     def step(self):
