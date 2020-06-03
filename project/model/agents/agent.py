@@ -56,6 +56,15 @@ class TownAgent(Agent):
                 agent = self.agents[self.get_random()]
         return agent
 
+    # Picks a random villager from the town
+    # TODO: Make this more efficient (maybe append a fixed villager list to each mafia player
+    # instead of all of the agents).
+    def pick_random_villager(self):
+        agent = self.agents[self.get_random()]
+        while (agent.is_mobster() or not agent.is_alive()):
+            agent = self.agents[self.get_random()]
+        return agent
+
     # Returns random integer between 0 and the number of agents - 1.
     def get_random(self):
         return randint(0, len(self.agents) - 1)
@@ -67,10 +76,10 @@ class TownAgent(Agent):
         else:
             print('Agent ', self.name, ' is dead.')
 
-    # Returns whether agent is alive or not
+    # Returns whether agent is alive
     def is_alive(self):
         return self.health == Health.ALIVE
-
+    
     # The step each agent does during the game.
     def step(self):
         # Night phase: the agent chooses another agent to interact with.

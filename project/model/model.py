@@ -6,6 +6,10 @@ from .agents.doctor import Doctor
 from .agents.lookout import Lookout
 from .agents.sheriff import Sheriff
 from .agents.mayor import Mayor
+from .agents.bodyguard import Bodyguard
+from .agents.mafioso import Mafioso
+from .agents.framer import Framer
+from .agents.godfather import Godfather
 
 from mesa import Model
 from mesa.time import RandomActivation
@@ -43,18 +47,46 @@ class TownModel(Model):
         self.schedule.add(lookout)
 
         # Create Sheriff
-        sheriff = Sheriff(0, self)
+        sheriff = Sheriff(2, self)
         temp.append(sheriff)
 
         self.agents.append(sheriff)
         self.schedule.add(sheriff)
 
         # Create Mayor
-        mayor = Mayor(0, self)
+        mayor = Mayor(3, self)
         temp.append(mayor)
 
         self.agents.append(mayor)
         self.schedule.add(mayor)
+
+        # Create Bodyguard
+        bodyguard = Bodyguard(4, self)
+        temp.append(bodyguard)
+
+        self.agents.append(bodyguard)
+        self.schedule.add(bodyguard)
+
+        # Create Mafioso
+        mafioso = Mafioso(5, self)
+        temp.append(mafioso)
+
+        self.agents.append(mafioso)
+        self.schedule.add(mafioso)
+
+        # Create Framer
+        framer = Framer(6, self)
+        temp.append(framer)
+
+        self.agents.append(framer)
+        self.schedule.add(framer)
+
+        # Create Godfather
+        godfather = Godfather(7, self)
+        temp.append(godfather)
+
+        self.agents.append(godfather)
+        self.schedule.add(godfather)
 
         # TODO: Change to looping through temp and adding each
         # agent one by one from there as roles are fixed in the
