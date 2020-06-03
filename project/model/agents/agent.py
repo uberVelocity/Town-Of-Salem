@@ -30,7 +30,7 @@ class State(enum.Enum):
 class TownAgent(Agent):
 
     # Agent that plays the game.
-    def __init__(self, unique_id, model, faction="Default", role="Default", health=Health.ALIVE, state=State.NEUTRAL):
+    def __init__(self, unique_id, model, role="Default", faction="Default", health=Health.ALIVE, state=State.NEUTRAL):
         super().__init__(unique_id, model)
         self.faction = faction
         self.name = unique_id
@@ -67,6 +67,7 @@ class TownAgent(Agent):
         else:
             print('Agent ', self.name, ' is dead.')
 
+    # Returns whether agent is alive or not
     def is_alive(self):
         return self.health == Health.ALIVE
 
@@ -76,13 +77,21 @@ class TownAgent(Agent):
         self.interact(self.pick_random_agent(1))
         pass
 
+    # Checks if agent is villager.
+    def is_villager(self):
+        return self.faction == Faction.VILLAGER
+
+    # Checks if agent is mobster.
+    def is_mobster(self):
+        return self.faction == Faction.MOBSTER
+
 class Villager(TownAgent):
     """Agent that is part of the Villager faction."""
     def __init__(self, unique_id, model, role, faction=Faction.VILLAGER):
-        super().__init__(unique_id, model, faction, role)
+        super().__init__(unique_id, model, role, faction)
 
 class Mobster(TownAgent):
     """Agent that is part of the Mobster faction."""
     def __init__(self, unique_id, model, role, faction=Faction.MOBSTER):
-        super().__init__(unique_id, model, faction ,role)
+        super().__init__(unique_id, model, role, faction)
 
