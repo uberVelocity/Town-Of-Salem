@@ -36,65 +36,38 @@ class TownModel(Model):
         doctor = Doctor(0, self)
         temp.append(doctor)
 
-        self.agents.append(doctor)
-        self.schedule.add(doctor)
-
         # Create Lookout
         lookout = Lookout(1, self)
         temp.append(lookout)
-
-        self.agents.append(lookout)
-        self.schedule.add(lookout)
 
         # Create Sheriff
         sheriff = Sheriff(2, self)
         temp.append(sheriff)
 
-        self.agents.append(sheriff)
-        self.schedule.add(sheriff)
-
         # Create Mayor
         mayor = Mayor(3, self)
         temp.append(mayor)
-
-        self.agents.append(mayor)
-        self.schedule.add(mayor)
 
         # Create Bodyguard
         bodyguard = Bodyguard(4, self)
         temp.append(bodyguard)
 
-        self.agents.append(bodyguard)
-        self.schedule.add(bodyguard)
-
         # Create Mafioso
         mafioso = Mafioso(5, self)
         temp.append(mafioso)
-
-        self.agents.append(mafioso)
-        self.schedule.add(mafioso)
 
         # Create Framer
         framer = Framer(6, self)
         temp.append(framer)
 
-        self.agents.append(framer)
-        self.schedule.add(framer)
-
         # Create Godfather
         godfather = Godfather(7, self)
         temp.append(godfather)
 
-        self.agents.append(godfather)
-        self.schedule.add(godfather)
-
-        # TODO: Change to looping through temp and adding each
-        # agent one by one from there as roles are fixed in the
-        # simulation. 
-        for i in range(len(temp), self.num_agents):
-            a = TownAgent(i, self)
-            self.agents.append(a)
-            self.schedule.add(a)
+        # Add agents in the model and schedule them on every model step
+        for i in range(num_mobsters + num_villagers):
+            self.agents.append(temp[i])
+            self.schedule.add(temp[i])
 
     # Advance the model by one step.
     def step(self):
