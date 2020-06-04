@@ -1,5 +1,5 @@
 # Town of salem
-Test
+Test2
  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nibh dui, luctus vel mattis pretium, vehicula quis nisi. Ut vulputate, tellus id finibus commodo, diam velit consectetur ex, sed faucibus est libero non risus. Suspendisse eu pulvinar leo. Phasellus dictum sit amet turpis et lacinia. Mauris varius sapien efficitur ligula imperdiet, at pretium turpis porttitor. Vivamus sollicitudin rhoncus tincidunt. Pellentesque accumsan velit vitae efficitur gravida. Aenean viverra viverra dui, at luctus risus volutpat laoreet.
 
 In hac habitasse platea dictumst. Nunc dictum, orci id hendrerit egestas, enim tortor hendrerit lorem, ac tempus libero purus id nisl. Pellentesque fermentum, elit non scelerisque porttitor, nulla ex eleifend diam, eu interdum nisl neque sed est. Phasellus eget tincidunt lectus. Aliquam congue est at magna ultrices, non convallis dui cursus. In ac urna rutrum, pharetra nisl eu, auctor ipsum. Vestibulum dapibus lacus libero, non posuere risus cursus eu.
