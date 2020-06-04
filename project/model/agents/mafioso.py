@@ -1,4 +1,4 @@
-from .agent import Mobster, Role, Faction, State
+from .agent import Mobster, Role, Faction
 
 class Mafioso(Mobster):
 
@@ -8,10 +8,12 @@ class Mafioso(Mobster):
     # Targets another agent to kill
     def interact(self, other_agent):
         if other_agent.is_alive():
-            other_agent.state = State.ATTACKED
+            other_agent.attacked = True
             print("I, the Mafioso[", self.unique_id, "], am Voting to Kill agent ", other_agent.name)
             other_agent.visited_by.append(self)
+            self.visiting = other_agent
     
     def step(self):
-        self.interact(self.pick_random_villager())
+        if self.is_alive():
+            self.interact(self.pick_random_villager())
         pass

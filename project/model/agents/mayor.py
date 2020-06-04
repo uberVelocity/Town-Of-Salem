@@ -1,6 +1,6 @@
 from random import randint
 
-from .agent import Villager, Role, Faction, State
+from .agent import Villager, Role, Faction
 
 class Mayor(Villager):
 

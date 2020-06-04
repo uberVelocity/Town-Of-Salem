@@ -22,23 +22,24 @@ class Health(enum.Enum):
     DEAD = 0
     ALIVE = 1
 
-class State(enum.Enum):
-    NEUTRAL = 0
-    ATTACKED = 1
-    PROTECTED = 2
-
 class TownAgent(Agent):
 
     # Agent that plays the game.
-    def __init__(self, unique_id, model, role="Default", faction="Default", health=Health.ALIVE, state=State.NEUTRAL):
+    def __init__(self, unique_id, model, role="Default", faction="Default", health=Health.ALIVE):
         super().__init__(unique_id, model)
         self.faction = faction
         self.name = unique_id
         self.role = role
         self.health = health
-        self.state = state
+        
+        self.attacked = False
+        self.protected = False
+        self.framed = False
+        self.announce_role = False
+
         self.agents = []
         self.visited_by = []
+        self.visiting = None
 
     # Interact with other_agent depending on self.role
     # TODO: Include a strategy parameter that specifies the interaction strategy.
@@ -52,7 +53,7 @@ class TownAgent(Agent):
     def pick_random_agent(self, exclude_self):
         agent = self.agents[self.get_random()]
         if not self.is_alive() | exclude_self:
-            while agent == self:
+            while agent == self or not agent.is_alive():
                 agent = self.agents[self.get_random()]
         return agent
 
@@ -83,7 +84,8 @@ class TownAgent(Agent):
     # The step each agent does during the game.
     def step(self):
         # Night phase: the agent chooses another agent to interact with.
-        self.interact(self.pick_random_agent(1))
+        if self.is_alive():
+            self.interact(self.pick_random_agent(1))
         pass
 
     # Checks if agent is villager.

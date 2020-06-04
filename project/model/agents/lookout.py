@@ -1,4 +1,4 @@
-from .agent import Villager, Role, Faction, State
+from .agent import Villager, Role, Faction
 
 class Lookout(Villager):
 
@@ -7,5 +7,5 @@ class Lookout(Villager):
 
     # Print the current visited_by list of the agent (not useful at all and potentially incomplete list)
     def interact(self, other_agent):
-        print("I, the Lookout[", self.unique_id, "], see that ", other_agent.name, " is being visited by: ", other_agent.visited_by)  # TODO: Resolve this in resolve_night()
         other_agent.visited_by.append(self)  # Append yourself as the person who visited the other agent
+        self.visiting = other_agent

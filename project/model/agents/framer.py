@@ -1,4 +1,4 @@
-from .agent import Mobster, Role, Faction, State
+from .agent import Mobster, Role, Faction
 
 class Framer(Mobster):
 
@@ -9,7 +9,10 @@ class Framer(Mobster):
     def interact(self, other_agent):
         print("I, the Framer[", self.unique_id, "], am attempting to Frame ", other_agent.name)
         other_agent.visited_by.append(self)
+        self.visiting = other_agent
+        other_agent.framed = True
 
     def step(self):
-        self.interact(self.pick_random_villager())
+        if self.is_alive():
+            self.interact(self.pick_random_villager())
         pass

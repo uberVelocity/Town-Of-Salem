@@ -1,5 +1,6 @@
 from .agents.agent import Faction
 from .agents.agent import Health
+from .agents.agent import Role
 
 from .agents.agent import TownAgent
 from .agents.doctor import Doctor
@@ -71,20 +72,62 @@ class TownModel(Model):
 
     # Advance the model by one step.
     def step(self):
-        self.schedule.step()
-        self.resolve_night()
-        self.end_night()
-        self.game_over()
+        self.schedule.step()    # Allow agents to do their night actions
+        self.resolve_night()    # Resolve the actions of the agents
+        self.end_night()        # Reset visited_by, statuses etc
+
+    # Determine whether agent should die
+    def resolve_dead(self, agent):
+        if agent.attacked == True and agent.protected == False:
+            agent.health = Health.DEAD
+            agent.announce_role = True
+        pass
+
+    # Determine who visited the lookout's target
+    def resolve_lookout(self, agent):
+        print("I, the Lookout[", agent.unique_id, "], see that ", agent.visiting.name, " is being visited by: ", agent.visiting.visited_by)
+        pass
+
+    # Determine the shown faction to the sheriff
+    def resolve_sheriff(self, agent):
+        if agent.visiting.role == Role.GODFATHER:
+            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.VILLAGER)
+        elif agent.visiting.framed:
+            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.MOBSTER)
+        else:
+            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
+        pass
 
     # Resolve interactions of the night.
     def resolve_night(self):
+        for agent in self.agents:
+            if agent.role == Role.LOOKOUT:
+                self.resolve_lookout(agent)
+
+            if agent.role == Role.SHERIFF:
+                self.resolve_sheriff(agent)
+
+            # Check whether agent should die
+            self.resolve_dead(agent)
+
         pass
 
     # Maintenance function to clear a night.
     def end_night(self):
-        # Set visited_by to empty.
+        # Publicly announce the role of the dead agent 
         for agent in self.agents:
+            if agent.announce_role == True:
+                print("X - I, the ", agent.role, " ,[", agent.name, "] have died!")
+                agent.announce_role = False
+
+            # Set visited_by to empty
             agent.visited_by = []
+
+            # Reset protected and attacked flags
+            if agent.role != Role.GODFATHER:
+                agent.protected = False
+            agent.attacked = False
+            agent.framed = False
 
     # Check that either all villagers or all mobsters are dead.
     # TODO: Make this more efficient through filter / list comprehension / counter
@@ -99,23 +142,21 @@ class TownModel(Model):
             if agent.is_mobster():
                 if not agent.is_alive():
                     dead_mobsters += 1
-        return (dead_villagers == 4 | dead_mobsters == 2)
-    
-    # Check that model and agents refer to the same address (used for debug).
-    def check_agents(self):
-        for i in range(len(self.agents)):
-            print(self.agents[i] == self.agents[i].agents[i])
-            print(self.agents[i], " == ", self.agents[i].agents[i]) 
-
-    # Print all properties of all agents.
-    def show_agents(self):
-        for i in range(len(self.agents)):
-            self.print_properties(self.agents[i])
+        if dead_villagers == 5:
+            print("MAFIA WINS!")
+        if dead_mobsters == 3:
+            print("TOWN WINS!")
+        return (dead_villagers == 5 or dead_mobsters == 3)
 
     # Distribute agents list to all agents.
     def distributeAgents(self):
         for i in range(len(self.agents)):
             self.agents[i].agents = self.agents
+
+    # Print all properties of all agents.
+    def show_agents(self):
+        for i in range(len(self.agents)):
+            self.print_properties(self.agents[i])
 
     # Print all properties of agent.
     def print_properties(self, agent):
