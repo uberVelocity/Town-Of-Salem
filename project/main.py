@@ -6,5 +6,3 @@ if __name__ == "__main__":
     
     while not model.game_over():
         model.step()
-
-
