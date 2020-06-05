@@ -10,7 +10,9 @@ During the night, villagers of certain roles may visit other villagers and inter
 For our project we would like to implement multi-agent simulation based on the Town of Salem. Like the original game simulation will have a set of agents with assigned role and a goal of eliminating the other faction. In the simulation we use the same set of agents for every game. The agents will try to use logical reasoning to vote based on some knowledge and on top of that try to learn which world is the real world. We also want to add an alternative win condition for the villagers: if two/three(number if under consideration right now) villagers know the real world then the mafia also loses the game(fbi gets called to aid the villagers). In our simulation when the agent dies his faction is revealed and if the agent was a villagers his knowledge also becomes known(last will). Both parts use public announcements to distribute new knowledge.
 
 ### Roles 
-**Vilalgers**
+
+**Villagers**
+
 1.Doctor - Heals one person per night preventing them from dying. Can self heal only once.
 
 2.Lookout - Watch one person at night to see who visits them.
@@ -29,11 +31,12 @@ happens. If you target yourself, you will use your bulletproof vest, gaining a t
 7.Mafioso - Each night, you can pick one person to vote to kill; however, if there is a Godfather and they pick someone else, their decision will override yours, and you will attack their target instead.
 
 We also thinking about replacing some of the original roles with roles that would benefit or interact with logical model more
-*Potential roles*
+***Potential roles***
 
 **Villagers**
 
 9.Oracle - oracle is capable of acquiring some/all knowledge of other agent in the simulation(amount of knowledge learned is currently under consideration). For an agent it chooses an agent and gets all or part of his knowledge(most likely part due to balancing of the game) 
+
 10.FBI agent - this role is an alternative to an alternative win condition. To win FBI agent need to discover the real world while at least one other villager is alive. Questioning action is available for FBI agent. FBI Agent questions another agent A and gets his knowledge about the agent B.
 
 **Mafia**
@@ -44,6 +47,7 @@ We also thinking about replacing some of the original roles with roles that woul
 We use python multi-agent library [MESA](https://github.com/projectmesa/mesa) for agent based modeling and [mlsolver](https://github.com/erohkohl/mlsolver) library for building and updating kripke model.
 
 The game consists of two phases:
+
 **Action phase** where all the agents perform the action simultaneously and try to update their knowledge based on that.
 
 **Voting phase** where agents choose who to lynch and vote yes and no for lynching of that person.
@@ -52,8 +56,10 @@ The game consists of two phases:
 ## Epistemic model
 We want to model this game using epistemic logic. Given the set of agents {1..n}, formulae will be of the form (a,b) where a is a set {0..n-1} and b is {0,1}, where 0 means that the agent a is a villager and 1 means that the agent is a mafia. For now we use the game with 8 total agents with 5 of them being the villagers and 3 - mafia. A Kripke model will consist of set of all possible world for every possible combination with constraints of number of factions and the fact that the mafia knows the true world from the beginning. 
 An example of one of the world is - 11100000 which suggests that in that world agents 0-2 are mafia and the rest of the agents are villagers. In general we would have 2^n worlds but due to initial restrictions this number will be reduced by quite a bit. During the simmulation the complexity of the model will be reduced since most of the agents will acquire some knowledge during the game and that in turn will remove some of the existing relations in a model. On top of that every agent also has a knowledge base to be able to represent higher level knowledge. Initially villagers only know their faction and mafia knows everyones faction. 
+
 A simplified example of a world with 3 agents can be seen below. Agents 1,2 are the villagers while the agent 3 is mafia. In this example villager is represented by 1 and mafia is 0. As we can see both villagers can not distinguish between two world(world 110 is the real world)
-![alt text](Kripke model.png)
+![alt text](Kripke_model.png)
+
 An example of acquired knowledge can be a public announcement of the faction of lynched person or his last will. Using this knowledge Kripke model is reduced by removing relations that would contradict this knowledge. Agents may also get some knowledge from their actions. For example if lookout checks agent A and agent A visited agent B and agent B ended up dead lookput may infer that agent A is mafioso. Other example would be if the doctor visited agent A and he received a message that agent A survived thanks to his intervention the doctor may conclude that agent A is not a mafia(technically it is possible for mafioso to target another member of mafia but for simplicity we assumed that mafia do not kill its members).
 There might be a possiblity that some agents may acquire conflicting knowledge that still may reduce the compexity of a model(lookout seeing nultiple persons visiting the same agent) in this case an OR formula is built.
 
