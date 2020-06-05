@@ -2,14 +2,15 @@ from .agent import Mobster, Role, Faction
 
 class Mafioso(Mobster):
 
-    def __init__(self, unique_id, model):
-        super().__init__(unique_id, model, Role.MAFIOSO, Faction.MOBSTER)
+    def __init__(self, unique_id, model, interactions=False):
+        super().__init__(unique_id, model, Role.MAFIOSO, interactions, Faction.MOBSTER)
 
     # Targets another agent to kill
     def interact(self, other_agent):
         if other_agent.is_alive():
             other_agent.attacked = True
-            print("I, the Mafioso[", self.unique_id, "], am Attempting to Kill agent ", other_agent.name)
+            if self.interactions:
+                print("I, the Mafioso[", self.unique_id, "], am Attempting to Kill agent ", other_agent.name)
             other_agent.visited_by.append(self)
             self.visiting = other_agent
     

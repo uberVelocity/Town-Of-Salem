@@ -25,8 +25,10 @@ class Health(enum.Enum):
 class TownAgent(Agent):
 
     # Agent that plays the game.
-    def __init__(self, unique_id, model, role="Default", faction="Default", health=Health.ALIVE):
+    def __init__(self, unique_id, model, role, interactions, faction="Default", health=Health.ALIVE):
         super().__init__(unique_id, model)
+        self.interactions = interactions
+        
         self.faction = faction
         self.name = unique_id
         self.role = role
@@ -105,11 +107,12 @@ class TownAgent(Agent):
 
 class Villager(TownAgent):
     """Agent that is part of the Villager faction."""
-    def __init__(self, unique_id, model, role, faction=Faction.VILLAGER):
-        super().__init__(unique_id, model, role, faction)
+    def __init__(self, unique_id, model, role, interactions=False, faction=Faction.VILLAGER):
+        super().__init__(unique_id, model, role, interactions, faction)
+    
 
 class Mobster(TownAgent):
     """Agent that is part of the Mobster faction."""
-    def __init__(self, unique_id, model, role, faction=Faction.MOBSTER):
-        super().__init__(unique_id, model, role, faction)
+    def __init__(self, unique_id, model, role, interactions=False, faction=Faction.MOBSTER):
+        super().__init__(unique_id, model, role, interactions, faction)
 
