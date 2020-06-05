@@ -197,10 +197,10 @@ class TownModel(Model):
                     dead_mobsters += 1
         if dead_villagers == 5:
             print("MAFIA WINS!")
-            winner = Faction.MOBSTER
+            winner[Faction.MOBSTER.value] += 1 
         if dead_mobsters == 3:
             print("TOWN WINS!")
-            winner = Faction.VILLAGER
+            winner[Faction.VILLAGER.value] += 1
         return (dead_villagers == 5 or dead_mobsters == 3)
 
     # Distribute agents list to all agents.

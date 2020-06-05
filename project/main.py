@@ -25,12 +25,13 @@ if __name__ == "__main__":
         runs = set_runs(sys.argv[1])
 
     path = os.getcwd() + "/results"
-    with open(path, 'a') as out:
-        winner = None
+    with open(path, 'w') as out:
+        winner = [0, 0]
         # Create model with 5 villagers and 3 mobsters
         for i in range(runs):
             model = TownModel(5, 3, interactions)
             while not model.game_over(winner):
                 model.step()
-            print(winner)
-            print(i)
+            out.write("Villager wins: " + str(winner[0]) + "\n")
+            out.write("Mafia wins: " + str(winner[1]) + "\n")
+            print(i + 1)
