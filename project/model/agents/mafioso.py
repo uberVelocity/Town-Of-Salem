@@ -9,7 +9,7 @@ class Mafioso(Mobster):
     def interact(self, other_agent):
         if other_agent.is_alive():
             other_agent.attacked = True
-            # print("I, the Mafioso[", self.unique_id, "], am Attempting to Kill agent ", other_agent.name)
+            print("I, the Mafioso[", self.unique_id, "], am Attempting to Kill agent ", other_agent.name)
             other_agent.visited_by.append(self)
             self.visiting = other_agent
     
