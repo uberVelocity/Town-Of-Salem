@@ -1,3 +1,7 @@
+import enum
+
+from random import randint
+
 from .agents.agent import Faction
 from .agents.agent import Health
 from .agents.agent import Role
@@ -14,6 +18,10 @@ from .agents.godfather import Godfather
 
 from mesa import Model
 from mesa.time import RandomActivation
+
+class Vote(enum.Enum):
+    RANDOM = 0
+    KNOWLEDGE = 1
 
 class TownModel(Model):
     # A model with some number of agents.
@@ -70,11 +78,46 @@ class TownModel(Model):
             self.agents.append(temp[i])
             self.schedule.add(temp[i])
 
+    # Make agents vote on who to lynch
+    def vote(self, strategy):
+        # A random Townsman is voted to be lynched per day.
+        # A majority is required to vote someone (n / 2 + 1)
+        if strategy == Vote.RANDOM:
+            alive = self.alive_agents()
+            votes = [0] * 8
+            for agent in alive:
+
+                # Pick random alive townsman, excluding self
+                nominee = alive[randint(0, len(alive) - 1)].name
+                while nominee == agent:
+                    nominee = alive[randint(0, len(alive) - 1)].name
+                
+                # Cast vote on random member
+                votes[nominee] += 1 
+            
+            # Check for majority
+            for vote in votes:
+                if vote == len(alive) / 2 + 1:
+                    self.agents[nominee].health = Health.DEAD
+                    print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
+                    break
+        print("VOTES: ", votes, "\n")
+        pass
+
+    # Gets the agents which are still alive
+    def alive_agents(self):
+        alive = []
+        for i in range(0, len(self.agents)):
+            if self.agents[i].health == Health.ALIVE:
+                alive.append(self.agents[i]) 
+        return alive
+
     # Advance the model by one step.
     def step(self):
         self.schedule.step()    # Allow agents to do their night actions
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
+        self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
 
     # Determine whether agent should die
     def resolve_dead(self, agent):
@@ -101,15 +144,14 @@ class TownModel(Model):
     # Resolve interactions of the night.
     def resolve_night(self):
         for agent in self.agents:
-            if agent.role == Role.LOOKOUT:
+            if agent.is_alive() and agent.role == Role.LOOKOUT:
                 self.resolve_lookout(agent)
 
-            if agent.role == Role.SHERIFF:
+            if agent.is_alive() and agent.role == Role.SHERIFF:
                 self.resolve_sheriff(agent)
 
             # Check whether agent should die
             self.resolve_dead(agent)
-
         pass
 
     # Maintenance function to clear a night.
