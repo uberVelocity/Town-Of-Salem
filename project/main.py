@@ -24,14 +24,26 @@ if __name__ == "__main__":
         interactions = True
         runs = set_runs(sys.argv[1])
 
+    # Get current path of script
     path = os.getcwd() + "/results"
     with open(path, 'w') as out:
         winner = [0, 0]
-        # Create model with 5 villagers and 3 mobsters
+
+        # Simulate `runs` number of games
         for i in range(runs):
+        
+            # Create model with 5 villagers and 3 mobsters
             model = TownModel(5, 3, interactions)
             while not model.game_over(winner):
                 model.step()
+
+            # Write results to file
             out.write("Villager wins: " + str(winner[0]) + "\n")
             out.write("Mafia wins: " + str(winner[1]) + "\n")
-            print(i + 1)
+            
+            # Print current run
+            print("Current run: ", i + 1)
+
+        # Print final number of wins per faction at the end
+        print("Villager wins: " + str(winner[0]))
+        print("Mafia wins: " + str(winner[1]))
