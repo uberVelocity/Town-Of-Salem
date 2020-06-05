@@ -52,14 +52,16 @@ class TownAgent(Agent):
 
     # Gets a random agent that is alive from the game. Exclude self picks agent that is not themself.
     def pick_random_agent(self, exclude_self):
-        agent = self.agents[self.get_random()]
-        if exclude_self:
-            while not (agent.is_alive() and agent == self):
-                agent = self.agents[self.get_random()]
+        agents = []
+        if exclude_self == True:
+            for agent in self.agents:
+                if agent.is_alive() and agent != self:
+                    agents.append(agent)
         else:
-            while not (agent.is_alive()):
-                agent = self.agents[self.get_random()]
-        return agent
+            for agent in self.agents:
+                if agent.is_alive():
+                    agents.append(agent)
+        return agents[randint(0, len(agents) - 1)]
 
     # Picks a random villager from the town
     # TODO: Make this more efficient (maybe append a fixed villager list to each mafia player

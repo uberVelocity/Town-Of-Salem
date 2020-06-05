@@ -9,13 +9,13 @@ class Doctor(Villager):
     # Pick any agent from the game, including self and give them PROTECTED
     def interact(self, other_agent):
         if other_agent != self:
-            print("I, the Doctor[", self.unique_id, "], am Healing ", other_agent.name)
+            # print("I, the Doctor[", self.unique_id, "], am Healing ", other_agent.name)
             other_agent.protected = True  # Give other_agent invulnerability for the night
             other_agent.visited_by.append(self)  # Append doctor to other agent's visited by list
             self.visiting = other_agent
         else:
             if self.self_heals != 0:
-                print("I, the Doctor[", self.unique_id,"], am Healing myself")
+                # print("I, the Doctor[", self.unique_id,"], am Healing myself")
                 self.protected = True  # Give invulnerability to self
                 self.visiting = self
                 self.self_heals = 0

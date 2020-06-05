@@ -8,7 +8,7 @@ class Godfather(Mobster):
         self.protected = True
     
     def interact(self, other_agent):
-        print("I, the Godfather[", self.unique_id, "], am ordering to kill agent ", other_agent.name)
+        # print("I, the Godfather[", self.unique_id, "], am ordering to kill agent ", other_agent.name)
         self.order = other_agent
         other_agent.mafia_voted = True
         

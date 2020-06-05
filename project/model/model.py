@@ -100,9 +100,9 @@ class TownModel(Model):
             for vote in votes:
                 if vote == len(alive) / 2 + 1:
                     self.agents[nominee].health = Health.DEAD
-                    print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
+                    # print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
                     break
-        print("VOTES: ", votes, "\n")
+        # print("VOTES: ", votes, "\n")
         pass
 
     # Gets the agents which are still alive
@@ -132,17 +132,20 @@ class TownModel(Model):
 
     # Determine who visited the lookout's target
     def resolve_lookout(self, agent):
-        print("I, the Lookout[", agent.unique_id, "], see that ", agent.visiting.name, " is being visited by: ", agent.visiting.visited_by)
+        # print("I, the Lookout[", agent.unique_id, "], see that ", agent.visiting.name, " is being visited by: ", agent.visiting.visited_by)
         pass
 
     # Determine the shown faction to the sheriff
     def resolve_sheriff(self, agent):
         if agent.visiting.role == Role.GODFATHER:
-            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.VILLAGER)
+            pass
+            # print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.VILLAGER)
         elif agent.visiting.framed:
-            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.MOBSTER)
+            pass
+            # print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.MOBSTER)
         else:
-            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
+            pass
+            # print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
         pass
 
     # Resolve interactions of the night.
@@ -164,7 +167,7 @@ class TownModel(Model):
         # Publicly announce the role of the dead agent 
         for agent in self.agents:
             if agent.announce_role == True:
-                print("X - I, the ", agent.role, " ,[", agent.name, "] have died!")
+                # print("X - I, the ", agent.role, " ,[", agent.name, "] have died!")
                 agent.announce_role = False
 
             # Set visited_by to empty
