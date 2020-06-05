@@ -31,7 +31,8 @@ happens. If you target yourself, you will use your bulletproof vest, gaining a t
 7.Mafioso - Each night, you can pick one person to vote to kill; however, if there is a Godfather and they pick someone else, their decision will override yours, and you will attack their target instead.
 
 We also thinking about replacing some of the original roles with roles that would benefit or interact with logical model more
-***Potential roles***
+
+### ***Potential roles***
 
 **Villagers**
 
@@ -58,6 +59,7 @@ We want to model this game using epistemic logic. Given the set of agents {1..n}
 An example of one of the world is - 11100000 which suggests that in that world agents 0-2 are mafia and the rest of the agents are villagers. In general we would have 2^n worlds but due to initial restrictions this number will be reduced by quite a bit. During the simmulation the complexity of the model will be reduced since most of the agents will acquire some knowledge during the game and that in turn will remove some of the existing relations in a model. On top of that every agent also has a knowledge base to be able to represent higher level knowledge. Initially villagers only know their faction and mafia knows everyones faction. 
 
 A simplified example of a world with 3 agents can be seen below. Agents 1,2 are the villagers while the agent 3 is mafia. In this example villager is represented by 1 and mafia is 0. As we can see both villagers can not distinguish between two world(world 110 is the real world)
+
 ![alt text](Kripke_model.png)
 
 An example of acquired knowledge can be a public announcement of the faction of lynched person or his last will. Using this knowledge Kripke model is reduced by removing relations that would contradict this knowledge. Agents may also get some knowledge from their actions. For example if lookout checks agent A and agent A visited agent B and agent B ended up dead lookput may infer that agent A is mafioso. Other example would be if the doctor visited agent A and he received a message that agent A survived thanks to his intervention the doctor may conclude that agent A is not a mafia(technically it is possible for mafioso to target another member of mafia but for simplicity we assumed that mafia do not kill its members).
