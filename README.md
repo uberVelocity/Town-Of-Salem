@@ -64,6 +64,8 @@ The game consists of two phases:
 
 **Voting phase** where agents choose who to lynch and vote yes and no for lynching of that person.
 
+### Preliminary results
+The game currently simulates the interactions between the townspeople using a random function. As such, no deliberations are being made on their decisions as of yet. Nevertheless, `100000` runs of the simulation have been run, upon which the results can be seen in the [results file](https://github.com/uberVelocity/Town-Of-Salem/blob/master/project/results).
 
 ## Epistemic model
 We want to model this game using epistemic logic. Given the set of agents {1..n}, formulae will be of the form (a,b) where a is a set {0..n-1} and b is {0,1}, where 0 means that the agent a is a villager and 1 means that the agent is a mafia. For now we use the game with 8 total agents with 5 of them being the villagers and 3 - mafia. A Kripke model will consist of set of all possible world for every possible combination with constraints of number of factions and the fact that the mafia knows the true world from the beginning. 
