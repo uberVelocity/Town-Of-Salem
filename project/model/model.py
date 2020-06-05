@@ -24,6 +24,7 @@ class Vote(enum.Enum):
     KNOWLEDGE = 1
 
 class TownModel(Model):
+    
     # A model with some number of agents.
     def __init__(self, num_villagers, num_mobsters, interactions):
         self.interactions = interactions
