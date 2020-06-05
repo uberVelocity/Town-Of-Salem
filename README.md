@@ -68,6 +68,3 @@ Higher order knowledge is not used that much in a simulation with the original r
 
 ### Voting: knowledge and beliefs
 Based on the voting agents may try to make an educated guess about the faction of a voter. if agent B voted for lunching of an agent A then we might suspect that agent B is a mafia, but it is not concrete knowledge. On top of that if mafia knows that they might be suspected they may try to change their voting behaviot to confuse the villagers. Multiple strategies can be implemented depending on what order of knowledge factions will try to use.
-
-
-
