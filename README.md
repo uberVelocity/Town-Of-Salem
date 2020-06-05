@@ -13,36 +13,33 @@ For our project we would like to implement multi-agent simulation based on the T
 
 **Villagers**
 
-1.Doctor - Heals one person per night preventing them from dying. Can self heal only once.
+1. Doctor - Heals one person per night preventing them from dying. Can self heal only once.
+2. Lookout - Watch one person at night to see who visits them.
 
-2.Lookout - Watch one person at night to see who visits them.
+3. Sheriff - Check one person each night for suspicious activity.(Reveals if the person is with town or with mafia faction).Roles with Detection Immunity, notably the Godfather, cannot be found.
 
-3.Sheriff - Check one person each night for suspicious activity.(Reveals if the person is with town or with mafia faction).Roles with Detection Immunity, notably the Godfather, cannot be found.
+4. Mayor - Gain 3 votes when you reveal yourself as Mayor.You cannot be healed by a Doctor once you reveal yourself.
 
-4.Mayor - Gain 3 votes when you reveal yourself as Mayor.You cannot be healed by a Doctor once you reveal yourself.
-
-5.Bodyguard - You can protect your target from one attack during the night and counterattack their attacker. You will die if this 
+5. Bodyguard - You can protect your target from one attack during the night and counterattack their attacker. You will die if this 
 happens. If you target yourself, you will use your bulletproof vest, gaining a temporary Basic defense.Your vest does not act like a guard; you will not counterattack any attackers.
 
 **Mafia**
 
-6.Godfather - You can pick a target to attack each night.If there is a Mafioso (and they are not role blocked that night), then they will do the killing for you.If a Mafioso is alive when you die, the Mafioso will be promoted to Godfather.If there is no Mafioso when you die, whichever member of the Mafia joins the lobby first will be promoted to a Mafioso.
-
-7.Mafioso - Each night, you can pick one person to vote to kill; however, if there is a Godfather and they pick someone else, their decision will override yours, and you will attack their target instead.
-
-We also thinking about replacing some of the original roles with roles that would benefit or interact with logical model more
+6. Godfather - You can pick a target to attack each night.If there is a Mafioso (and they are not role blocked that night), then they will do the killing for you.If a Mafioso is alive when you die, the Mafioso will be promoted to Godfather.If there is no Mafioso when you die, whichever member of the Mafia joins the lobby first will be promoted to a Mafioso.
+7. Mafioso - Each night, you can pick one person to vote to kill; however, if there is a Godfather and they pick someone else, their decision will override yours, and you will attack their target instead.
+8. Framer - Framing a target will show them as Mobster for the entire night should they be investigated by the sheriff.
+We also thought about replacing some of the original roles with roles that would benefit or interact with logical model more
 
 ### ***Potential roles***
 
 **Villagers**
 
-9.Oracle - oracle is capable of acquiring some/all knowledge of other agent in the simulation(amount of knowledge learned is currently under consideration). For an agent it chooses an agent and gets all or part of his knowledge(most likely part due to balancing of the game) 
-
-10.FBI agent - this role is an alternative to an alternative win condition. To win FBI agent need to discover the real world while at least one other villager is alive. Questioning action is available for FBI agent. FBI Agent questions another agent A and gets his knowledge about the agent B.
+9. Oracle - oracle is capable of acquiring some/all knowledge of other agent in the simulation(amount of knowledge learned is currently under consideration). For an agent it chooses an agent and gets all or part of his knowledge(most likely part due to balancing of the game) 
+10. FBI agent - this role is an alternative to an alternative win condition. To win FBI agent need to discover the real world while at least one other villager is alive. Questioning action is available for FBI agent. FBI Agent questions another agent A and gets his knowledge about the agent B.
 
 **Mafia**
 
-11.Interrogator - Interrogates a targed and acquires its knowledge. Then shares it with the rest of the mafia.
+11. Interrogator - Interrogates a targed and acquires its knowledge. Then shares it with the rest of the mafia.
 
 Most likely we will replace framer with interrogator since it will also remove false knowledge from the model and maybe just add a new villager role if this will not complicate the model by a lot.
 
