@@ -1,19 +1,53 @@
 # Town of salem
-Test2
- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris nibh dui, luctus vel mattis pretium, vehicula quis nisi. Ut vulputate, tellus id finibus commodo, diam velit consectetur ex, sed faucibus est libero non risus. Suspendisse eu pulvinar leo. Phasellus dictum sit amet turpis et lacinia. Mauris varius sapien efficitur ligula imperdiet, at pretium turpis porttitor. Vivamus sollicitudin rhoncus tincidunt. Pellentesque accumsan velit vitae efficitur gravida. Aenean viverra viverra dui, at luctus risus volutpat laoreet.
+## Introduction
+Town of Salem is an online browser game that pits players against each other in a game of intrigue and mystery. 
 
-In hac habitasse platea dictumst. Nunc dictum, orci id hendrerit egestas, enim tortor hendrerit lorem, ac tempus libero purus id nisl. Pellentesque fermentum, elit non scelerisque porttitor, nulla ex eleifend diam, eu interdum nisl neque sed est. Phasellus eget tincidunt lectus. Aliquam congue est at magna ultrices, non convallis dui cursus. In ac urna rutrum, pharetra nisl eu, auctor ipsum. Vestibulum dapibus lacus libero, non posuere risus cursus eu.
+The premise is that there is a town populated by two types of villagers: townspeople and mobsters. The purpose of the game is to lynch every mobster, or kill all townspeople depending on the role of the player.
+Each player is assigned either faction in secrecy at the beginning of the game. Mobsters know who the other mobsters are. Townspeple don't know who the other townspeople or mobsters are. There are more townspeople than mobsters. The game transitions between day and night sequences where unique interactions take place between the villagers.
+The day is split into two phases. Initially, everyone gathers in the town square and is able to exchange information between each other publicly. Then, a lynching phase is initiated in which villagers vote who to lynch during that day. If there is a majority, the person is put on trial and can argue for their life. A final vote to decide to kill them is initiated. If a person is lynched, they're out of the game. Once a person dies in this game, their role is revealed to everybody.
+During the night, villagers of certain roles may visit other villagers and interact with them. Although the original game offers 48 unique roles with interactions we thought to propose a subset of that. 
 
-Nam sollicitudin convallis posuere. Donec ultrices lorem sed elit lobortis aliquet. Curabitur sit amet arcu tellus. Aliquam at ex quis nisl mollis viverra eget ac orci. Nullam justo tortor, ullamcorper eget semper et, porttitor eu velit. Ut porta accumsan enim vitae scelerisque. Sed cursus, odio quis ultricies tincidunt, magna augue egestas orci, iaculis fringilla eros est at quam. Aenean sodales viverra ante, nec venenatis turpis. Aliquam et gravida eros, eget scelerisque eros. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Sed id ultrices dolor. Integer sit amet neque velit. Nullam sit amet lorem sit amet elit luctus commodo vitae sit amet elit. Vestibulum ut dolor in urna pretium eleifend non nec est. 
+For our project we would like to implement multi-agent simulation based on the Town of Salem. Like the original game simulation will have a set of agents with assigned role and a goal of eliminating the other faction. In the simulation we use the same set of agents for every game. The agents will try to use logical reasoning to vote based on some knowledge and on top of that try to learn which world is the real world. We also want to add an alternative win condition for the villagers: if two/three(number if under consideration right now) villagers know the real world then the mafia also loses the game(fbi gets called to aid the villagers). In our simulation when the agent dies his faction is revealed and if the agent was a villagers his knowledge also becomes known(last will). Both parts use public announcements to distribute new knowledge.
 
-### Some section
+### Roles 
+**Vilalgers**
+1.Doctor - Heals one person per night preventing them from dying. Can self heal only once.
+2.Lookout - Watch one person at night to see who visits them.
+3.Sheriff - Check one person each night for suspicious activity.(Reveals if the person is with town or with mafia faction).Roles with Detection Immunity, notably the Godfather, cannot be found.
+4.Mayor - Gain 3 votes when you reveal yourself as Mayor.You cannot be healed by a Doctor once you reveal yourself.
+5.Bodyguard - You can protect your target from one attack during the night and counterattack their attacker. You will die if this happens. If you target yourself, you will use your bulletproof vest, gaining a temporary Basic defense.Your vest does not act like a guard; you will not counterattack any attackers.
+**Mafia**
+6.Godfather - You can pick a target to attack each night.If there is a Mafioso (and they are not role blocked that night), then they will do the killing for you.If a Mafioso is alive when you die, the Mafioso will be promoted to Godfather.If there is no Mafioso when you die, whichever member of the Mafia joins the lobby first will be promoted to a Mafioso.
+7.Mafioso - Each night, you can pick one person to vote to kill; however, if there is a Godfather and they pick someone else, their decision will override yours, and you will attack their target instead.
+We also thinking about replacing some of the original roles with roles that would benefit or interact with logical model more
+*Potential roles*
+**Vilalgers**
+9.Oracle - oracle is capable of acquiring some/all knowledge of other agent in the simulation(amount of knowledge learned is currently under consideration). Or
+10.FBI agent - this role is an alternative to an alternative win condition. To win FBI agent need to discover the real world while at least one other villager is alive. Questioning action is available for FBI agent. Agent questions another agent A and gets his knowledge apart from the faction of questioned agent(questioned agent does not restify against itself)
+**Mafia**
+11.Interrogator - Interrogates a targed and acquires its knowledge. Then shares it with the rest of the mafia.
 
-### Some other section
+## Setup
+We use python multi-agent library [MESA](https://github.com/projectmesa/mesa) for agent based modeling and [mlsolver](https://github.com/erohkohl/mlsolver) library for building and updating kripke model.
 
-- read
-- write
-- delete
+The game consists of two phases:
+**Action phase** where all the agents perform the action simultaneously and try to update their knowledge based on that
+**Voting phase** where agents choose who to lynch and vote yes and no for lynching of that person.
 
-## Big header
 
-##### Smol header
+## Epistemic model
+We want to model this game using epistemic logic. Given the set of agents {1..n}, formulae will be of the form (a,b) where a is a set {0..n-1} and b is {0,1}, where 0 means that the agent a is a villager and 1 means that the agent is a mafia. For now we use the game with 8 total agents with 5 of them being the villagers and 3 - mafia. A Kripke model will consist of set of all possible world for every possible combination with constraints of number of factions and the fact that the mafia knows the true world from the beginning. 
+An example of one of the world is - 11100000 which suggests that in that world agents 0-2 are mafia and the rest of the agents are villagers. In general we would have 2^n worlds but due to initial restrictions this number will be reduced by quite a bit. During the simmulation the complexity of the model will be reduced since most of the agents will acquire some knowledge during the game and that in turn will remove some of the existing relations in a model. On top of that every agent also has a knowledge base to be able to represent higher level knowledge. Initially villagers only know their faction and mafia knows everyones faction. 
+A simplified example of a world with 3 agents can be seen below. Agents 1,2 are the villagers while the agent 3 is mafia. In this example villager is represented by 1 and mafia is 0. As we can see both villagers can not distinguish between two world(world 110 is the real world)
+![alt text](Kripke model.png)
+An example of acquired knowledge can be a public announcement of the faction of lynched person or his last will. Using this knowledge Kripke model is reduced by removing relations that would contradict this knowledge. Agents may also get some knowledge from their actions. For example if lookout checks agent A and agent A visited agent B and agent B ended up dead lookput may infer that agent A is mafioso. Other example would be if the doctor visited agent A and he received a message that agent A survived thanks to his intervention the doctor may conclude that agent A is not a mafia(technically it is possible for mafioso to target another member of mafia but for simplicity we assumed that mafia do not kill its members).
+There might be a possiblity that some agents may acquire conflicting knowledge that still may reduce the compexity of a model(lookout seeing nultiple persons visiting the same agent) in this case an OR formula is built.
+
+### Higher order knowledge
+Higher order knowledge is not used that much in a simulation with the original role but it is important for the version with our sutom roles. Custom roles allows agents to acquire knowledge about agents knowledge and based on that knowledge they may alter their actions. We think of implementing different strategies regarding the last will(reveal of the knowledge after the death of an agent) but in the original variant mafia does not want to kill the villagers who know more information about mafia, because in that case that knowledge will become known to everyone via public announcement. On the other hand if we have a no last will variant of the game the mafia want to kill the person with the most knowledge about the mafia.
+
+### Voting: knowledge and beliefs
+Based on the voting agents may try to make an educated guess about the faction of a voter. if agent B voted for lunching of an agent A then we might suspect that agent B is a mafia, but it is not concrete knowledge. On top of that if mafia knows that they might be suspected they may try to change their voting behaviot to confuse the villagers. Multiple strategies can be implemented depending on what order of knowledge factions will try to use.
+
+
+
