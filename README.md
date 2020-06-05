@@ -44,6 +44,8 @@ We also thinking about replacing some of the original roles with roles that woul
 
 11.Interrogator - Interrogates a targed and acquires its knowledge. Then shares it with the rest of the mafia.
 
+Most likely we will replace framer with interrogator since it will also remove false knowledge from the model and maybe just add a new villager role if this will not complicate the model by a lot.
+
 ## Setup
 We use python multi-agent library [MESA](https://github.com/projectmesa/mesa) for agent based modeling and [mlsolver](https://github.com/erohkohl/mlsolver) library for building and updating kripke model.
 
@@ -70,3 +72,6 @@ Higher order knowledge is not used that much in a simulation with the original r
 
 ### Voting: knowledge and beliefs
 Based on the voting agents may try to make an educated guess about the faction of a voter. if agent B voted for lunching of an agent A then we might suspect that agent B is a mafia, but it is not concrete knowledge. On top of that if mafia knows that they might be suspected they may try to change their voting behaviot to confuse the villagers. Multiple strategies can be implemented depending on what order of knowledge factions will try to use.
+
+## Current progress
+Currently we have multi-agent model with most of the actions and separate kripke model, but right now agents act randomly. Acting based on the knowledge and updating the knowledge and Kripke model based on the actions are curently not implemented.
