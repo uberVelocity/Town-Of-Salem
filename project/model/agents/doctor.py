@@ -23,5 +23,5 @@ class Doctor(Villager):
     # Custom step of Doctor: is able to pick themselves
     def step(self):
         if self.is_alive():
-            self.interact(self.pick_random_agent(0))
+            self.interact(self.pick_random_agent(False))
         pass

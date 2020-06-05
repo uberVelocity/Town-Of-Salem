@@ -17,7 +17,7 @@ from .agents.framer import Framer
 from .agents.godfather import Godfather
 
 from mesa import Model
-from mesa.time import RandomActivation
+from mesa.time import BaseScheduler
 
 class Vote(enum.Enum):
     RANDOM = 0
@@ -35,7 +35,7 @@ class TownModel(Model):
     # Initialize the agents of the game.
     def init_agents(self, num_villagers, num_mobsters):
         self.num_agents = num_villagers + num_mobsters
-        self.schedule = RandomActivation(self)  # TODO: Potentially switch to SimulatenousActivation()
+        self.schedule = BaseScheduler(self)  # TODO: Potentially switch to SimulatenousActivation()
         self.agents = []
 
         # Create agents
@@ -61,17 +61,17 @@ class TownModel(Model):
         bodyguard = Bodyguard(4, self)
         temp.append(bodyguard)
 
-        # Create Mafioso
-        mafioso = Mafioso(5, self)
-        temp.append(mafioso)
+        # Create Godfather
+        godfather = Godfather(5, self)
+        temp.append(godfather)
 
         # Create Framer
         framer = Framer(6, self)
         temp.append(framer)
 
-        # Create Godfather
-        godfather = Godfather(7, self)
-        temp.append(godfather)
+        # Create Mafioso
+        mafioso = Mafioso(7, self)
+        temp.append(mafioso)
 
         # Add agents in the model and schedule them on every model step
         for i in range(num_mobsters + num_villagers):
@@ -80,6 +80,7 @@ class TownModel(Model):
 
     # Make agents vote on who to lynch
     def vote(self, strategy):
+
         # A random Townsman is voted to be lynched per day.
         # A majority is required to vote someone (n / 2 + 1)
         if strategy == Vote.RANDOM:
@@ -124,6 +125,9 @@ class TownModel(Model):
         if agent.attacked == True and agent.protected == False:
             agent.health = Health.DEAD
             agent.announce_role = True
+        if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
+            agent.health = Health.DEAD
+            agent.announce_role = True
         pass
 
     # Determine who visited the lookout's target
@@ -156,6 +160,7 @@ class TownModel(Model):
 
     # Maintenance function to clear a night.
     def end_night(self):
+
         # Publicly announce the role of the dead agent 
         for agent in self.agents:
             if agent.announce_role == True:
@@ -170,6 +175,7 @@ class TownModel(Model):
                 agent.protected = False
             agent.attacked = False
             agent.framed = False
+            agent.mafia_voted = False
 
     # Check that either all villagers or all mobsters are dead.
     # TODO: Make this more efficient through filter / list comprehension / counter
@@ -206,6 +212,5 @@ class TownModel(Model):
         print("Faction: ", agent.faction)
         print("Role: \t ", agent.role)
         print("Health:  ", agent.health)
-        print("State: \t ", agent.state)
         # TODO: Visited by format
         print("--------------------\n")

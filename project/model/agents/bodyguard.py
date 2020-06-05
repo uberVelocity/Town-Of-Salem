@@ -21,5 +21,5 @@ class Bodyguard(Villager):
     # Custom step of Bodyguard: is able to guard themselves
     def step(self):
         if self.is_alive():
-            self.interact(self.pick_random_agent(0))
+            self.interact(self.pick_random_agent(False))
         pass

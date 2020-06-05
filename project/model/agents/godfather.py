@@ -1,4 +1,4 @@
-from .agent import Mobster, Role, Faction
+from .agent import Mobster, Role, Faction, Health
 
 class Godfather(Mobster):
 
@@ -10,6 +10,11 @@ class Godfather(Mobster):
     def interact(self, other_agent):
         print("I, the Godfather[", self.unique_id, "], am ordering to kill agent ", other_agent.name)
         self.order = other_agent
+        other_agent.mafia_voted = True
+        
+        # If Mafioso is dead, Godfather visits the target himself
+        if self.agents[7].health == Health.DEAD:
+            other_agent.visited_by.append(self)
 
     def step(self):
         if self.is_alive():

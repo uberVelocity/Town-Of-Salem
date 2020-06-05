@@ -36,6 +36,7 @@ class TownAgent(Agent):
         self.protected = False
         self.framed = False
         self.announce_role = False
+        self.mafia_voted = False
 
         self.agents = []
         self.visited_by = []
@@ -52,8 +53,11 @@ class TownAgent(Agent):
     # Gets a random agent that is alive from the game. Exclude self picks agent that is not themself.
     def pick_random_agent(self, exclude_self):
         agent = self.agents[self.get_random()]
-        if not self.is_alive() | exclude_self:
-            while agent == self or not agent.is_alive():
+        if exclude_self:
+            while not (agent.is_alive() and agent == self):
+                agent = self.agents[self.get_random()]
+        else:
+            while not (agent.is_alive()):
                 agent = self.agents[self.get_random()]
         return agent
 
@@ -62,7 +66,7 @@ class TownAgent(Agent):
     # instead of all of the agents).
     def pick_random_villager(self):
         agent = self.agents[self.get_random()]
-        while (agent.is_mobster() or not agent.is_alive()):
+        while (not agent.is_alive() or agent.is_mobster()):
             agent = self.agents[self.get_random()]
         return agent
 
@@ -83,9 +87,10 @@ class TownAgent(Agent):
     
     # The step each agent does during the game.
     def step(self):
+
         # Night phase: the agent chooses another agent to interact with.
         if self.is_alive():
-            self.interact(self.pick_random_agent(1))
+            self.interact(self.pick_random_agent(True))
         pass
 
     # Checks if agent is villager.
