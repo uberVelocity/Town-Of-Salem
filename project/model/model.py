@@ -185,7 +185,7 @@ class TownModel(Model):
     # Check that either all villagers or all mobsters are dead.
     # TODO: Make this more efficient through filter / list comprehension / counter
     # that gets incremented after every death.
-    def game_over(self):
+    def game_over(self, winner):
         dead_villagers = 0
         dead_mobsters = 0
         for agent in self.agents:
@@ -197,8 +197,10 @@ class TownModel(Model):
                     dead_mobsters += 1
         if dead_villagers == 5:
             print("MAFIA WINS!")
+            winner = Faction.MOBSTER
         if dead_mobsters == 3:
             print("TOWN WINS!")
+            winner = Faction.VILLAGER
         return (dead_villagers == 5 or dead_mobsters == 3)
 
     # Distribute agents list to all agents.
