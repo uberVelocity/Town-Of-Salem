@@ -1,4 +1,4 @@
-from .agent import Villager, Role, Faction
+from .agent import Villager, Role, Health, Faction, ActionStrategy
 
 class Lookout(Villager):
 
@@ -9,3 +9,23 @@ class Lookout(Villager):
     def interact(self, other_agent):
         other_agent.visited_by.append(self)  # Append yourself as the person who visited the other agent
         self.visiting = other_agent
+
+    def step(self):
+        strategy = ActionStrategy.KNOWLEDGE
+        if self.is_alive():
+            if strategy == ActionStrategy.RANDOM:
+                self.interact(self.pick_random_agent(True))
+            elif strategy == ActionStrategy.KNOWLEDGE:
+                villagers = []
+
+                # Get all villagers from knowledge base
+                for id, faction in self.knowledge:
+                    if faction == str(Faction.VILLAGER.value) and self.agents[id].health == Health.ALIVE:
+                        villagers.append(id)
+                print("List of potential healing buddies: ", villagers)
+
+                if len(villagers) == 1:
+                    self.interact(self.pick_random_agent(False))
+                else:
+                    villagers.remove(self.name)
+                    self.interact(self.agents[choice(villagers)])
