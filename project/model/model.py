@@ -36,14 +36,7 @@ class TownModel(Model):
 
         # self.show_agents()
         self.distributeAgents()
-        self.model_test()
-        exit()
-        
-    def model_test(self):
-        salem = TownOfSalemAgents(8)
-        ks = salem.ks
-        ks.print()
-
+        self.kripke_model = TownOfSalemAgents(8).ks
 
     # Initialize the agents of the game.
     def init_agents(self, num_villagers, num_mobsters):
@@ -134,15 +127,40 @@ class TownModel(Model):
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
         self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
+        self.kripke_model.print()
+        exit()
+        
+
+    def announce_information(self, strategy):
+        agents = self.alive_agents()
+        for agent in self.agents:
+            if agent.announce_role:
+                for alive_agent in agents:
+                    if agent.faction == Faction.VILLAGER:
+                        # Create fact to add to all villagers
+                        fact = (agent.name, str(agent.faction.value))
+                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
+
+                        # Update all villagers with fact
+                        alive_agent.knowledge.add(fact)
+                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
+
+                        atom = Atom(fact)
+
+                        # Update kripke model correspondingly
+                        self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
+        pass
 
     # Determine whether agent should die
     def resolve_dead(self, agent):
         if agent.attacked == True and agent.protected == False:
             agent.health = Health.DEAD
             agent.announce_role = True
+            self.announce_information(0)
         if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
             agent.health = Health.DEAD
             agent.announce_role = True
+            self.announce_information(0)
         pass
 
     # Determine who visited the lookout's target

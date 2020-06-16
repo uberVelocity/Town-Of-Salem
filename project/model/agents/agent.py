@@ -34,9 +34,11 @@ class TownAgent(Agent):
         self.role = role
         self.health = health
 
-        # List of knowledge modeled by a tuple containing (agent_id, agent_faction)
-        self.knowledge = [(self.name, str(self.faction))]
-        self.beliefs = [(self.name), str(self.faction)]
+        # Set of knowledge modeled by a tuple containing (agent_id, agent_faction)
+        init_knowledge = (self.name, str(self.faction.value))
+        self.knowledge = set()
+        self.knowledge.add(init_knowledge)
+        self.beliefs = set()
 
         self.attacked = False
         self.protected = False
