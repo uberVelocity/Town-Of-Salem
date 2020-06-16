@@ -27,6 +27,11 @@ class Vote(enum.Enum):
     RANDOM = 0
     KNOWLEDGE = 1
 
+class DeathStrategy(enum.Enum):
+    FACTION = 0
+    ALL = 1
+
+
 class TownModel(Model):
     
     # A model with some number of agents.
@@ -84,9 +89,11 @@ class TownModel(Model):
             self.agents.append(temp[i])
             self.schedule.add(temp[i])
 
+        # Set initial knowledge configuration - UNCOMMENT TO EXPERIMENT
+        # self.set_init_knowledge()
+
     # Make agents vote on who to lynch
     def vote(self, strategy):
-
         # A random Townsman is voted to be lynched per day.
         # A majority is required to vote someone (n / 2 + 1)
         if strategy == Vote.RANDOM:
@@ -113,6 +120,18 @@ class TownModel(Model):
             print("VOTES: ", votes, "\n")
         pass
 
+    def set_init_knowledge(self):
+        agents = self.agents
+
+        agents[1].knowledge.add((2, '0'))
+        agents[3].knowledge.add((4, '0'))
+        
+        agents[1].attacked = True
+        agents[1].protected = False
+
+        agents[3].attacked = True
+        agents[3].protected = False
+
     # Gets the agents which are still alive
     def alive_agents(self):
         alive = []
@@ -127,28 +146,35 @@ class TownModel(Model):
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
         self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
-        self.kripke_model.print()
-        exit()
         
-
+    # Updates agent's knowledge and updates kripke model
     def announce_information(self, strategy):
         agents = self.alive_agents()
         for agent in self.agents:
             if agent.announce_role:
                 for alive_agent in agents:
                     if agent.faction == Faction.VILLAGER:
+
                         # Create fact to add to all villagers
-                        fact = (agent.name, str(agent.faction.value))
                         print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
+                        if strategy == DeathStrategy.FACTION:
+                            fact = (agent.name, str(agent.faction.value))
+                            alive_agent.knowledge.add(fact)
+
+                            # Update kripke model correspondingly
+                            atom = Atom(fact)
+                            self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
+                        elif strategy == DeathStrategy.ALL:
+                            facts = agent.knowledge
+                            for fact in facts:
+                                alive_agent.knowledge.add(fact)
+
+                                # Update kripke model correspondingly
+                                atom = Atom(fact)
+                                self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
 
                         # Update all villagers with fact
-                        alive_agent.knowledge.add(fact)
                         print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
-
-                        atom = Atom(fact)
-
-                        # Update kripke model correspondingly
-                        self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
         pass
 
     # Determine whether agent should die
@@ -156,11 +182,11 @@ class TownModel(Model):
         if agent.attacked == True and agent.protected == False:
             agent.health = Health.DEAD
             agent.announce_role = True
-            self.announce_information(0)
+            self.announce_information(DeathStrategy.ALL)
         if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
             agent.health = Health.DEAD
             agent.announce_role = True
-            self.announce_information(0)
+            self.announce_information(DeathStrategy.ALL)
         pass
 
     # Determine who visited the lookout's target
