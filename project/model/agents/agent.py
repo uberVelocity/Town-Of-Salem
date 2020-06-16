@@ -22,6 +22,11 @@ class Health(enum.Enum):
     DEAD = 0
     ALIVE = 1
 
+class ActionStrategy(enum.Enum):
+    RANDOM = 0
+    KNOWLEDGE = 1
+
+
 class TownAgent(Agent):
 
     # Agent that plays the game.

@@ -31,7 +31,6 @@ class DeathStrategy(enum.Enum):
     FACTION = 0
     ALL = 1
 
-
 class TownModel(Model):
     
     # A model with some number of agents.
@@ -122,15 +121,7 @@ class TownModel(Model):
 
     def set_init_knowledge(self):
         agents = self.agents
-
-        agents[1].knowledge.add((2, '0'))
-        agents[3].knowledge.add((4, '0'))
-        
-        agents[1].attacked = True
-        agents[1].protected = False
-
-        agents[3].attacked = True
-        agents[3].protected = False
+        agents[0].knowledge.add((1, '0'))
 
     # Gets the agents which are still alive
     def alive_agents(self):
