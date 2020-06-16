@@ -182,6 +182,7 @@ class TownModel(Model):
             agent.health = Health.DEAD
             agent.announce_role = True
             self.announce_information(DeathStrategy.ALL)
+        
         pass
 
     # Update knowledge of agents and kripke model with respect to Mayor's faction
@@ -227,13 +228,15 @@ class TownModel(Model):
 
     # Determine the shown faction to the sheriff
     def resolve_sheriff(self, agent):
+        fact = (agent.visiting.name, str(agent.visiting.faction.value))
+        agent.knowledge.add(fact)
+
+        # Update kripke model correspondingly
+        atom = Atom(fact)
+        self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+
         if self.interactions:
-            if agent.visiting.role == Role.GODFATHER:
-                print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.VILLAGER)
-            elif agent.visiting.framed:
-                print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", Faction.MOBSTER)
-            else:
-                print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
+            print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
         pass
 
     # Resolve interactions of the night

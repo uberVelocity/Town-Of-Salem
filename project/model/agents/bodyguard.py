@@ -1,4 +1,5 @@
-from .agent import Villager, Role, Faction
+from .agent import Villager, Role, Faction, Health, ActionStrategy
+from random import choice
 
 class Bodyguard(Villager):
 
@@ -24,6 +25,27 @@ class Bodyguard(Villager):
 
     # Custom step of Bodyguard: is able to guard themselves
     def step(self):
+        strategy = ActionStrategy.KNOWLEDGE
         if self.is_alive():
-            self.interact(self.pick_random_agent(False))
-        pass
+            # Picks random agent from alive agents, including self
+            if strategy == ActionStrategy.RANDOM:
+                self.interact(self.pick_random_agent(False))
+            # Picks random agent from known villagers, including self
+            elif strategy == ActionStrategy.KNOWLEDGE:
+                villagers = []
+                
+                # Get all villagers from knowledge base
+                for id, faction in self.knowledge:
+                    if faction == str(Faction.VILLAGER.value) and self.agents[id].health == Health.ALIVE:
+                        villagers.append(id)
+                if self.interactions:
+                    print("List of potential guarding buddies: ", villagers)
+
+                # Guard random agent if Bodyguard knows only about themself
+                if len(villagers) == 1:
+                    self.interact(self.pick_random_agent(False))
+                else:
+                    # Always guard town member if Bodyguard cannot guard self
+                    if self.vests == 0:
+                        villagers.remove(self.name)
+                    self.interact(self.agents[choice(villagers)])
