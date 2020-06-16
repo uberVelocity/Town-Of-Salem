@@ -138,6 +138,7 @@ class TownModel(Model):
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
         self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
+        # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
     def announce_information(self, strategy):
@@ -148,7 +149,8 @@ class TownModel(Model):
                     if agent.faction == Faction.VILLAGER:
 
                         # Create fact to add to all villagers
-                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
+                        if self.interactions:
+                            print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
                         if strategy == DeathStrategy.FACTION:
                             fact = (agent.name, str(agent.faction.value))
                             alive_agent.knowledge.add(fact)
@@ -166,7 +168,8 @@ class TownModel(Model):
                                 self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
 
                         # Update all villagers with fact
-                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
+                        if self.interactions:
+                            print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
         pass
 
     # Determine whether agent should die
@@ -181,11 +184,24 @@ class TownModel(Model):
             self.announce_information(DeathStrategy.ALL)
         pass
 
+    # Update knowledge of agents and kripke model with respect to Mayor's faction
+    def resolve_mayor(self, agent):
+        if agent.revealed == True:
+            fact = (agent.name, str(Faction.VILLAGER.value))
+            agents = self.alive_agents()
+            for agent in agents:
+                agent.knowledge.add(fact)
+            
+                # Update kripke model correspondingly
+                atom = Atom(fact)
+                self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)            
+        pass
+
     # Determine who visited the lookout's target
     def resolve_lookout(self, agent):
         if agent.visiting.attacked and agent.visiting.protected == False and len(agent.visiting.visited_by) == 2:
             agent.visiting.visited_by.remove(agent)
-            fact = (agent.visiting.visited_by[0], str(Faction.MOBSTER.value))
+            fact = (agent.visiting.visited_by[0].name, str(Faction.MOBSTER.value))
             agent.knowledge.add(fact)
 
             # Update kripke model correspondingly

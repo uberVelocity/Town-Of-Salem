@@ -1,4 +1,5 @@
 from .agent import Villager, Role, Health, Faction, ActionStrategy
+from random import choice
 
 class Lookout(Villager):
 
@@ -22,7 +23,6 @@ class Lookout(Villager):
                 for id, faction in self.knowledge:
                     if faction == str(Faction.VILLAGER.value) and self.agents[id].health == Health.ALIVE:
                         villagers.append(id)
-                print("List of potential healing buddies: ", villagers)
 
                 if len(villagers) == 1:
                     self.interact(self.pick_random_agent(False))
