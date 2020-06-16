@@ -1,5 +1,5 @@
-from .agent import Villager, Role, Faction
-
+from .agent import Villager, Role, Faction, Health, ActionStrategy
+from random import choice
 class Doctor(Villager):
 
     def __init__(self, unique_id, model, interactions=False):
@@ -24,6 +24,27 @@ class Doctor(Villager):
 
     # Custom step of Doctor: is able to pick themselves
     def step(self):
+        strategy = ActionStrategy.KNOWLEDGE
         if self.is_alive():
-            self.interact(self.pick_random_agent(False))
+            # Picks random agent from alive agents, including self
+            if strategy == ActionStrategy.RANDOM:
+                self.interact(self.pick_random_agent(False))
+            # Picks random agent from known villagers, including self
+            elif strategy == ActionStrategy.KNOWLEDGE:
+                villagers = []
+                
+                # Get all villagers from knowledge base
+                for id, faction in self.knowledge:
+                    if faction == str(Faction.VILLAGER.value) and self.agents[id].health == Health.ALIVE:
+                        villagers.append(id)
+                print("List of potential healing buddies: ", villagers)
+
+                # Heal random agent if Doctor knows only about themself
+                if len(villagers) == 1:
+                    self.interact(self.pick_random_agent(False))
+                else:
+                    # Always heal town member if Doctor cannot heal self
+                    if self.self_heals == 0:
+                        villagers.remove(self.name)
+                    self.interact(self.agents[choice(villagers)])
         pass
