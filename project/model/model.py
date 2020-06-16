@@ -20,8 +20,8 @@ from .agents.godfather import Godfather
 from mesa import Model
 from mesa.time import BaseScheduler
 
-from .agents.kripke_model import TownOfSalemAgents
-from .agents.formula import *
+from .mlsolver.kripke_model import TownOfSalemAgents
+from .mlsolver.formula import *
 
 class Vote(enum.Enum):
     RANDOM = 0
