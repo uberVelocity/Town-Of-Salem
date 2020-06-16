@@ -185,6 +185,18 @@ class TownModel(Model):
         if self.interactions:
             print("I, the Lookout[", agent.unique_id, "], see that ", agent.visiting.name, " is being visited by: ", agent.visiting.visited_by)
         
+    # Updates knowledge of Doctor and Kripke model based on Doctor interaction with agent
+    def resolve_doctor(self, agent):
+        if agent.visiting.attacked:
+            fact = (agent.visiting.name, str(Faction.VILLAGER.value))
+            agent.knowledge.add(fact)
+
+            # Update kripke model correspondingly
+            atom = Atom(fact)
+            self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+            if self.interactions:
+                print("I, the Doctor[", agent.unique_id, "], know that agent ", agent.visiting.role, "[", agent.visiting.name, "] is a villager (he was attacked).")
+        pass
 
     # Determine the shown faction to the sheriff
     def resolve_sheriff(self, agent):
@@ -205,6 +217,9 @@ class TownModel(Model):
 
             if agent.is_alive() and agent.role == Role.SHERIFF:
                 self.resolve_sheriff(agent)
+
+            if agent.is_alive() and agent.role == Role.DOCTOR:
+                self.resolve_doctor(agent)
 
             # Check whether agent should die
             self.resolve_dead(agent)

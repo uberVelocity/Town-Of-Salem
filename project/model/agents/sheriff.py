@@ -3,7 +3,7 @@ from .agent import Villager, Role, Faction
 class Sheriff(Villager):
 
     def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, interactions, Role.SHERIFF, Faction.VILLAGER)
+        super().__init__(unique_id, model, Role.SHERIFF, interactions, Faction.VILLAGER)
 
     # A sheriff visits someone and gets their faction
     def interact(self, other_agent):
