@@ -41,6 +41,7 @@ class TownModel(Model):
         # self.show_agents()
         self.distributeAgents()
         self.kripke_model = TownOfSalemAgents(8).ks
+        self.set_init_knowledge()
 
     # Initialize the agents of the game.
     def init_agents(self, num_villagers, num_mobsters):
@@ -89,7 +90,7 @@ class TownModel(Model):
             self.schedule.add(temp[i])
 
         # Set initial knowledge configuration - UNCOMMENT TO EXPERIMENT
-        # self.set_init_knowledge()
+        
 
     # Make agents vote on who to lynch
     def vote(self, strategy):
@@ -121,7 +122,7 @@ class TownModel(Model):
 
     def set_init_knowledge(self):
         agents = self.agents
-        agents[0].knowledge.add((1, '0'))
+        pass
 
     # Gets the agents which are still alive
     def alive_agents(self):
@@ -182,6 +183,16 @@ class TownModel(Model):
 
     # Determine who visited the lookout's target
     def resolve_lookout(self, agent):
+        if agent.visiting.attacked and agent.visiting.protected == False and len(agent.visiting.visited_by) == 2:
+            agent.visiting.visited_by.remove(agent)
+            fact = (agent.visiting.visited_by[0], str(Faction.MOBSTER.value))
+            agent.knowledge.add(fact)
+
+            # Update kripke model correspondingly
+            atom = Atom(fact)
+            self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+            if (self.interactions):
+                print("I, the Lookout[", agent.unique_id, "], see that ", agent.visiting.visited_by[0].name, " is a MAFIOSO")
         if self.interactions:
             print("I, the Lookout[", agent.unique_id, "], see that ", agent.visiting.name, " is being visited by: ", agent.visiting.visited_by)
         
