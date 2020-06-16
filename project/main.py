@@ -34,6 +34,8 @@ if __name__ == "__main__":
         
             # Create model with 5 villagers and 3 mobsters
             model = TownModel(5, 3, interactions)
+
+            # Run the model until the game is over
             while not model.game_over(winner):
                 model.step()
 

@@ -3,7 +3,7 @@ from .agent import Mobster, Role, Faction, Health
 class Godfather(Mobster):
 
     def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, Role.GODFATHER, interactions, Faction.MOBSTER, )
+        super().__init__(unique_id, model, Role.GODFATHER, interactions, Faction.MOBSTER)
         self.order = None
         self.protected = True
     

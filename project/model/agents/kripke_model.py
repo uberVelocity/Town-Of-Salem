@@ -4,8 +4,8 @@ Module contains data model for three wise men puzzle as Kripke strukture and age
 formulas
 """
 from itertools import permutations
-from mlsolver.kripke import KripkeStructure, World
-from mlsolver.formula import Atom, And, Not, Or, Box_a, Box_star
+from .kripke import KripkeStructure, World
+from .formula import Atom, And, Not, Or, Box_a, Box_star
 from bisect import bisect_left
 from itertools import *
 
@@ -309,8 +309,6 @@ class TownOfSalemAgents:
         #print("Relations:")
         self.ks = KripkeStructure(kripke_worlds, relations)
         #print(self.ks.relations)
-        self.print_relations()
-
                         
                         
 

@@ -1,4 +1,5 @@
 import enum
+import timeit
 
 from random import randint
 
@@ -19,6 +20,9 @@ from .agents.godfather import Godfather
 from mesa import Model
 from mesa.time import BaseScheduler
 
+from .agents.kripke_model import TownOfSalemAgents
+from .agents.formula import *
+
 class Vote(enum.Enum):
     RANDOM = 0
     KNOWLEDGE = 1
@@ -32,6 +36,14 @@ class TownModel(Model):
 
         # self.show_agents()
         self.distributeAgents()
+        self.model_test()
+        exit()
+        
+    def model_test(self):
+        salem = TownOfSalemAgents(8)
+        ks = salem.ks
+        ks.print()
+
 
     # Initialize the agents of the game.
     def init_agents(self, num_villagers, num_mobsters):
@@ -150,7 +162,7 @@ class TownModel(Model):
                 print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
         pass
 
-    # Resolve interactions of the night.
+    # Resolve interactions of the night
     def resolve_night(self):
         for agent in self.agents:
             if agent.is_alive() and agent.role == Role.LOOKOUT:

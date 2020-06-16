@@ -3,7 +3,7 @@ from .agent import Mobster, Role, Faction
 class Framer(Mobster):
 
     def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, Role.FRAMER, interactions, Faction.MOBSTER, )
+        super().__init__(unique_id, model, Role.FRAMER, interactions, Faction.MOBSTER )
 
     # Picks a target and makes it appear as Mobster if inspected by Sheriff
     def interact(self, other_agent):
