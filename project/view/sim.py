@@ -33,6 +33,15 @@ class Sim(QtWidgets.QWidget):
         # Set layout to main window
         self.setLayout(self.layout)
 
+        self.start_button.clicked.connect(self.start)
+
+    # TODO: Write values to config file and start sim
+    def start(self):
+        # Current proof of concept: takes value of field and changes
+        # title with it
+        self.title.setText(self.dropdown_strategy.currentText())
+        pass
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])
 
