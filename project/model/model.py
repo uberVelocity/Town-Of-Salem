@@ -29,7 +29,11 @@ from .mlsolver.kripke_model import TownOfSalemAgents
 from .mlsolver.formula import *
 
 class Vote(enum.Enum):
+    # Each agent votes randomly on another agent
     RANDOM = 0
+
+    # Villagers vote on a random person from a subset that excludes known villagers
+    # Mafia vote on random villagers (uncoordinated)
     KNOWLEDGE_NO_COOP = 1
 
 class DeathStrategy(enum.Enum):
@@ -106,11 +110,12 @@ class TownModel(Model):
         return villagers
 
     # Make agents vote on who to lynch
+    # A majority is required to vote someone >= (n / 2 + 1)
     def vote(self, strategy):
-        # A random Townsman is voted to be lynched per day.
-        # A majority is required to vote someone (n / 2 + 1)
         alive = self.alive_agents()
         votes = [0] * 8
+
+        # A random Townsman is voted to be lynched per day.
         if strategy == Vote.RANDOM:
             for agent in alive:
 
@@ -120,6 +125,9 @@ class TownModel(Model):
                     nominee = alive[randint(0, len(alive) - 1)].name
                 
                 # Cast vote on random member
+                if agent.role == Role.MAYOR:
+                    if agent.revealed:
+                        votes[nominee] += 2
                 votes[nominee] += 1 
         elif strategy == Vote.KNOWLEDGE_NO_COOP:
             for agent in alive:
@@ -148,10 +156,9 @@ class TownModel(Model):
 
                         votes[nominee] += 1
             pass
+
         # Check for majority
         for i, vote in enumerate(votes):
-            # print("index: ", i, "vote: ", vote)
-            # print("len alive / 2 + 1:", len(alive) / 2 + 1)
             if vote >= floor(len(alive) / 2) + 1:
                 self.agents[i].health = Health.DEAD
                 if self.interactions:
@@ -162,7 +169,6 @@ class TownModel(Model):
         pass
 
     def set_init_knowledge(self):
-        agents = self.agents
         pass
 
     # Gets the agents which are still alive
@@ -223,9 +229,7 @@ class TownModel(Model):
         if self.interactions:
             print("Agent ", agent.name, " visiting:", agent.visiting)
         if (agent.role == Role.MAFIOSO or agent.role == Role.GODFATHER) and (self.agents[4].visiting == agent.visiting):
-            # print(agent.name, " should die!")
             agent.health = Health.DEAD
-            # print("Agent ", agent.name, "'s health:", agent.health)
             self.announce_information(DeathStrategy.FACTION)
         pass
 
