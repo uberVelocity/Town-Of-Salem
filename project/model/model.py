@@ -1,7 +1,12 @@
 import enum
 import timeit
 
+from copy import copy
+
+from math import floor
+
 from random import randint
+from random import choice
 
 from .agents.agent import Faction
 from .agents.agent import Health
@@ -25,7 +30,7 @@ from .mlsolver.formula import *
 
 class Vote(enum.Enum):
     RANDOM = 0
-    KNOWLEDGE = 1
+    KNOWLEDGE_NO_COOP = 1
 
 class DeathStrategy(enum.Enum):
     FACTION = 0
@@ -90,15 +95,23 @@ class TownModel(Model):
             self.schedule.add(temp[i])
 
         # Set initial knowledge configuration - UNCOMMENT TO EXPERIMENT
-        
+
+    # Gets alive villagers
+    def get_alive_villagers(self):
+        villagers = []
+        for agent in self.agents:
+            if agent.faction == Faction.VILLAGER:
+                if agent.is_alive():
+                    villagers.append(agent)
+        return villagers
 
     # Make agents vote on who to lynch
     def vote(self, strategy):
         # A random Townsman is voted to be lynched per day.
         # A majority is required to vote someone (n / 2 + 1)
+        alive = self.alive_agents()
+        votes = [0] * 8
         if strategy == Vote.RANDOM:
-            alive = self.alive_agents()
-            votes = [0] * 8
             for agent in alive:
 
                 # Pick random alive townsman, excluding self
@@ -108,14 +121,42 @@ class TownModel(Model):
                 
                 # Cast vote on random member
                 votes[nominee] += 1 
-            
-            # Check for majority
-            for i, vote in enumerate(votes):
-                if vote >= len(alive) / 2 + 1:
-                    self.agents[i].health = Health.DEAD
-                    if self.interactions:
-                        print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
-                    break
+        elif strategy == Vote.KNOWLEDGE_NO_COOP:
+            for agent in alive:
+                potential_agents = copy(alive)
+                
+                # Villager KNOWLEDGE_NO_COOP strategy
+                if agent.faction == Faction.VILLAGER:
+                    for id, faction in agent.knowledge:
+                        if faction == str(Faction.VILLAGER.value) and self.agents[id].is_alive():
+                            potential_agents.remove(self.agents[id])
+                    
+                    # Pick random alive townsman, excluding self
+                    if len(potential_agents) != 0:
+                        nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+                        while nominee == agent:
+                            nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+
+                        votes[nominee] += 1
+                
+                # Mafia KNOWLEDGE_NO_COOP strategy
+                if agent.faction == Faction.MOBSTER:
+                    villagers = self.get_alive_villagers()
+                    if len(villagers) != 0:
+                        nominee = choice(villagers)
+                        nominee = nominee.name
+
+                        votes[nominee] += 1
+            pass
+        # Check for majority
+        for i, vote in enumerate(votes):
+            # print("index: ", i, "vote: ", vote)
+            # print("len alive / 2 + 1:", len(alive) / 2 + 1)
+            if vote >= floor(len(alive) / 2) + 1:
+                self.agents[i].health = Health.DEAD
+                if self.interactions:
+                    print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
+                break
         if self.interactions:
             print("VOTES: ", votes, "\n")
         pass
@@ -137,7 +178,7 @@ class TownModel(Model):
         self.schedule.step()    # Allow agents to do their night actions
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
-        self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
+        self.vote(Vote.KNOWLEDGE_NO_COOP)  # Vote on who to lynch during the day
         # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
@@ -282,6 +323,7 @@ class TownModel(Model):
 
             # Check whether agent should die
             self.resolve_dead(agent)
+        
         if self.interactions:
             self.print_dead()
         pass
