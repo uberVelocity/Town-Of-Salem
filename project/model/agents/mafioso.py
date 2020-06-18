@@ -21,8 +21,8 @@ class Mafioso(Mobster):
                 if agent.mafia_voted:
                     target = agent
                     break
-        if target is not None:
-            self.interact(target)
-        else:
-            self.interact(self.pick_random_villager())
+            if target is not None:
+                self.interact(target)
+            else:
+                self.interact(self.pick_random_villager())
         pass

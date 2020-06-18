@@ -1,4 +1,4 @@
-from .agent import Mobster, Role, Faction
+from .agent import Mobster, Role, Faction, Health
 
 class Framer(Mobster):
 
@@ -12,6 +12,11 @@ class Framer(Mobster):
         other_agent.visited_by.append(self)
         self.visiting = other_agent
         other_agent.framed = True
+
+        # If Mafioso and Godfather are dead, Framer visits the target himself
+        if self.agents[7].health == Health.DEAD and self.agents[5].health == Health.DEAD:
+            other_agent.visited_by.append(self)
+            other_agent.attacked = True
 
     def step(self):
         if self.is_alive():
