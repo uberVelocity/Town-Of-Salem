@@ -144,45 +144,44 @@ class TownModel(Model):
     def announce_information(self, strategy):
         agents = self.alive_agents()
         for agent in self.agents:
-            if agent.announce_role:
-                for alive_agent in agents:
-                    if agent.faction == Faction.VILLAGER:
+            for alive_agent in agents:
+                if agent.faction == Faction.VILLAGER:
 
-                        # Create fact to add to all villagers
-                        if self.interactions:
-                            print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
-                        if strategy == DeathStrategy.FACTION:
-                            fact = (agent.name, str(agent.faction.value))
+                    # Create fact to add to all villagers
+                    if self.interactions:
+                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
+                    if strategy == DeathStrategy.FACTION:
+                        fact = (agent.name, str(agent.faction.value))
+                        alive_agent.knowledge.add(fact)
+
+                        # Update kripke model correspondingly
+                        atom = Atom(fact)
+                        self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
+                    elif strategy == DeathStrategy.ALL:
+                        facts = agent.knowledge
+                        for fact in facts:
                             alive_agent.knowledge.add(fact)
 
                             # Update kripke model correspondingly
                             atom = Atom(fact)
                             self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
-                        elif strategy == DeathStrategy.ALL:
-                            facts = agent.knowledge
-                            for fact in facts:
-                                alive_agent.knowledge.add(fact)
 
-                                # Update kripke model correspondingly
-                                atom = Atom(fact)
-                                self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
-
-                        # Update all villagers with fact
-                        if self.interactions:
-                            print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
+                    # Update all villagers with fact
+                    if self.interactions:
+                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
         pass
 
     # Determine whether agent should die
     def resolve_dead(self, agent):
         if agent.attacked == True and agent.protected == False:
             agent.health = Health.DEAD
-            agent.announce_role = True
             self.announce_information(DeathStrategy.ALL)
         if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
             agent.health = Health.DEAD
-            agent.announce_role = True
             self.announce_information(DeathStrategy.ALL)
-        
+        if (agent.role == Role.MAFIOSO or agent.role == Role.GODFATHER) and (self.agents[4].visiting == agent.visiting):
+            agent.health = Health.DEAD
+            self.announce_information(DeathStrategy.FACTION)
         pass
 
     # Update knowledge of agents and kripke model with respect to Mayor's faction
@@ -224,7 +223,7 @@ class TownModel(Model):
             self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
             if self.interactions:
                 print("I, the Doctor[", agent.unique_id, "], know that agent ", agent.visiting.role, "[", agent.visiting.name, "] is a villager (he was attacked).")
-        pass
+        pass        
 
     # Determine the shown faction to the sheriff
     def resolve_sheriff(self, agent):
@@ -238,6 +237,18 @@ class TownModel(Model):
         if self.interactions:
             print("I, the Sheriff[", agent.unique_id, "], am Inspecting agent ", agent.visiting.name, " and their faction is ", agent.visiting.faction)
         pass
+
+    # Updates knowledge of Bodyguard and Kripke model based on Bodyguard interaction with agent
+    def resolve_bodyguard(self, agent):
+        if agent.visiting.attacked:
+            fact = (agent.visiting.name, str(Faction.VILLAGER.value))
+            agent.knowledge.add(fact)
+
+            # Update kripke model correspondingly
+            atom = Atom(fact)
+            self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+            if self.interactions:
+                print("I, the Bodyguard[", agent.unique_id, "], know that agent ", agent.visiting.role, "[", agent.visiting.name, "] is a villager (he was attacked).")
 
     # Resolve interactions of the night
     def resolve_night(self):
