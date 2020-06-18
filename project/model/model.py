@@ -110,9 +110,9 @@ class TownModel(Model):
                 votes[nominee] += 1 
             
             # Check for majority
-            for vote in votes:
-                if vote == len(alive) / 2 + 1:
-                    self.agents[nominee].health = Health.DEAD
+            for i, vote in enumerate(votes):
+                if vote >= len(alive) / 2 + 1:
+                    self.agents[i].health = Health.DEAD
                     if self.interactions:
                         print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
                     break
@@ -179,10 +179,20 @@ class TownModel(Model):
         if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
             agent.health = Health.DEAD
             self.announce_information(DeathStrategy.ALL)
+        if self.interactions:
+            print("Agent ", agent.name, " visiting:", agent.visiting)
         if (agent.role == Role.MAFIOSO or agent.role == Role.GODFATHER) and (self.agents[4].visiting == agent.visiting):
+            # print(agent.name, " should die!")
             agent.health = Health.DEAD
+            # print("Agent ", agent.name, "'s health:", agent.health)
             self.announce_information(DeathStrategy.FACTION)
         pass
+
+    # Prints dead agents
+    def print_dead(self):
+        for agent in self.agents:
+            if agent.health == Health.DEAD:
+                print("DEAD: ", agent.name)
 
     # Update knowledge of agents and kripke model with respect to Mayor's faction
     def resolve_mayor(self, agent):
@@ -252,18 +262,25 @@ class TownModel(Model):
 
     # Resolve interactions of the night
     def resolve_night(self):
+        if self.interactions:
+            self.print_dead()
         for agent in self.agents:
-            if agent.is_alive() and agent.role == Role.LOOKOUT:
+            if agent.is_alive() and agent.role == Role.LOOKOUT and agent.visiting != None:
                 self.resolve_lookout(agent)
 
-            if agent.is_alive() and agent.role == Role.SHERIFF:
+            if agent.is_alive() and agent.role == Role.SHERIFF and agent.visiting != None:
                 self.resolve_sheriff(agent)
 
-            if agent.is_alive() and agent.role == Role.DOCTOR:
+            if agent.is_alive() and agent.role == Role.DOCTOR and agent.visiting != None:
                 self.resolve_doctor(agent)
+
+            if agent.is_alive() and agent.role == Role.BODYGUARD and agent.visiting != None:
+                self.resolve_bodyguard(agent)
 
             # Check whether agent should die
             self.resolve_dead(agent)
+        if self.interactions:
+            self.print_dead()
         pass
 
     # Maintenance function to clear a night.
@@ -276,8 +293,9 @@ class TownModel(Model):
                     print("X - I, the ", agent.role, " ,[", agent.name, "] have died!")
                 agent.announce_role = False
 
-            # Set visited_by to empty
+            # Set visited_by and visiting to empty
             agent.visited_by = []
+            agent.visiting = None
 
             # Reset protected and attacked flags
             if agent.role != Role.GODFATHER:

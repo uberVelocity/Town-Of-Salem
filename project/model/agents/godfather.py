@@ -16,6 +16,7 @@ class Godfather(Mobster):
         # If Mafioso is dead, Godfather visits the target himself
         if self.agents[7].health == Health.DEAD:
             other_agent.visited_by.append(self)
+            self.visiting = other_agent
 
     def step(self):
         if self.is_alive():
