@@ -268,6 +268,9 @@ class TownModel(Model):
             if agent.is_alive() and agent.role == Role.LOOKOUT and agent.visiting != None:
                 self.resolve_lookout(agent)
 
+            if agent.is_alive() and agent.role == Role.MAYOR and agent.visiting != None:
+                self.resolve_mayor(agent)
+
             if agent.is_alive() and agent.role == Role.SHERIFF and agent.visiting != None:
                 self.resolve_sheriff(agent)
 
