@@ -14,6 +14,7 @@ class Mayor(Villager):
             if self.interactions:
                 print("I, the Mayor[", self.unique_id, "], have revealed myself")
             self.revealed = True
+            self.visiting = self
         else:
             if self.interactions:
                 print("I, the Mayor[", self.unique_id, "], am doing nothing")

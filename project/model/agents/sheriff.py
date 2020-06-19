@@ -1,6 +1,6 @@
 from .agent import Villager, Role, Faction, Health, ActionStrategy
 from random import choice
-import copy
+from copy import copy
 
 class Sheriff(Villager):
 
@@ -13,14 +13,14 @@ class Sheriff(Villager):
         self.visiting = other_agent
 
     def step(self):
-        strategy = ActionStrategy.KNOWLEDGE
+        strategy = ActionStrategy.RANDOM
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:
                 self.interact(self.pick_random_agent(False))
             # Picks random agent from known villagers, including self
             elif strategy == ActionStrategy.KNOWLEDGE:
-                unknown = copy.copy(self.agents)
+                unknown = copy(self.agents)
                 
                 # Get all villagers from knowledge base
                 for id, faction in self.knowledge:

@@ -1,7 +1,12 @@
 import enum
 import timeit
 
+from copy import copy
+
+from math import floor
+
 from random import randint
+from random import choice
 
 from .agents.agent import Faction
 from .agents.agent import Health
@@ -24,8 +29,12 @@ from .mlsolver.kripke_model import TownOfSalemAgents
 from .mlsolver.formula import *
 
 class Vote(enum.Enum):
+    # Each agent votes randomly on another agent
     RANDOM = 0
-    KNOWLEDGE = 1
+
+    # Villagers vote on a random person from a subset that excludes known villagers
+    # Mafia vote on random villagers (uncoordinated)
+    KNOWLEDGE_NO_COOP = 1
 
 class DeathStrategy(enum.Enum):
     FACTION = 0
@@ -90,15 +99,24 @@ class TownModel(Model):
             self.schedule.add(temp[i])
 
         # Set initial knowledge configuration - UNCOMMENT TO EXPERIMENT
-        
+
+    # Gets alive villagers
+    def get_alive_villagers(self):
+        villagers = []
+        for agent in self.agents:
+            if agent.faction == Faction.VILLAGER:
+                if agent.is_alive():
+                    villagers.append(agent)
+        return villagers
 
     # Make agents vote on who to lynch
+    # A majority is required to vote someone >= (n / 2 + 1)
     def vote(self, strategy):
+        alive = self.alive_agents()
+        votes = [0] * 8
+
         # A random Townsman is voted to be lynched per day.
-        # A majority is required to vote someone (n / 2 + 1)
         if strategy == Vote.RANDOM:
-            alive = self.alive_agents()
-            votes = [0] * 8
             for agent in alive:
 
                 # Pick random alive townsman, excluding self
@@ -107,21 +125,50 @@ class TownModel(Model):
                     nominee = alive[randint(0, len(alive) - 1)].name
                 
                 # Cast vote on random member
+                if agent.role == Role.MAYOR:
+                    if agent.revealed:
+                        votes[nominee] += 2
                 votes[nominee] += 1 
-            
-            # Check for majority
-            for vote in votes:
-                if vote == len(alive) / 2 + 1:
-                    self.agents[nominee].health = Health.DEAD
-                    if self.interactions:
-                        print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
-                    break
+        elif strategy == Vote.KNOWLEDGE_NO_COOP:
+            for agent in alive:
+                potential_agents = copy(alive)
+                
+                # Villager KNOWLEDGE_NO_COOP strategy
+                if agent.faction == Faction.VILLAGER:
+                    for id, faction in agent.knowledge:
+                        if faction == str(Faction.VILLAGER.value) and self.agents[id].is_alive():
+                            potential_agents.remove(self.agents[id])
+                    
+                    # Pick random alive townsman, excluding self
+                    if len(potential_agents) != 0:
+                        nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+                        while nominee == agent:
+                            nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+
+                        votes[nominee] += 1
+                
+                # Mafia KNOWLEDGE_NO_COOP strategy
+                if agent.faction == Faction.MOBSTER:
+                    villagers = self.get_alive_villagers()
+                    if len(villagers) != 0:
+                        nominee = choice(villagers)
+                        nominee = nominee.name
+
+                        votes[nominee] += 1
+            pass
+
+        # Check for majority
+        for i, vote in enumerate(votes):
+            if vote >= floor(len(alive) / 2) + 1:
+                self.agents[i].health = Health.DEAD
+                if self.interactions:
+                    print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
+                break
         if self.interactions:
             print("VOTES: ", votes, "\n")
         pass
 
     def set_init_knowledge(self):
-        agents = self.agents
         pass
 
     # Gets the agents which are still alive
@@ -132,12 +179,21 @@ class TownModel(Model):
                 alive.append(self.agents[i]) 
         return alive
 
+    def get_alive_mafia(self):
+        mafia = []
+        for agent in self.agents:
+            if agent.faction == Faction.MOBSTER:
+                if agent.is_alive():
+                    mafia.append(agent)
+        return mafia
+
     # Advance the model by one step.
     def step(self):
         self.schedule.step()    # Allow agents to do their night actions
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
-        self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
+        if len(self.get_alive_villagers()) != 0 and len(self.get_alive_mafia()) != 0:
+            self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
         # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
@@ -179,10 +235,18 @@ class TownModel(Model):
         if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
             agent.health = Health.DEAD
             self.announce_information(DeathStrategy.ALL)
+        if self.interactions:
+            print("Agent ", agent.name, " visiting:", agent.visiting)
         if (agent.role == Role.MAFIOSO or agent.role == Role.GODFATHER) and (self.agents[4].visiting == agent.visiting):
             agent.health = Health.DEAD
             self.announce_information(DeathStrategy.FACTION)
         pass
+
+    # Prints dead agents
+    def print_dead(self):
+        for agent in self.agents:
+            if agent.health == Health.DEAD:
+                print("DEAD: ", agent.name)
 
     # Update knowledge of agents and kripke model with respect to Mayor's faction
     def resolve_mayor(self, agent):
@@ -252,18 +316,29 @@ class TownModel(Model):
 
     # Resolve interactions of the night
     def resolve_night(self):
+        if self.interactions:
+            self.print_dead()
         for agent in self.agents:
-            if agent.is_alive() and agent.role == Role.LOOKOUT:
+            if agent.is_alive() and agent.role == Role.LOOKOUT and agent.visiting != None:
                 self.resolve_lookout(agent)
 
-            if agent.is_alive() and agent.role == Role.SHERIFF:
+            if agent.is_alive() and agent.role == Role.MAYOR and agent.visiting != None:
+                self.resolve_mayor(agent)
+
+            if agent.is_alive() and agent.role == Role.SHERIFF and agent.visiting != None:
                 self.resolve_sheriff(agent)
 
-            if agent.is_alive() and agent.role == Role.DOCTOR:
+            if agent.is_alive() and agent.role == Role.DOCTOR and agent.visiting != None:
                 self.resolve_doctor(agent)
+
+            if agent.is_alive() and agent.role == Role.BODYGUARD and agent.visiting != None:
+                self.resolve_bodyguard(agent)
 
             # Check whether agent should die
             self.resolve_dead(agent)
+        
+        if self.interactions:
+            self.print_dead()
         pass
 
     # Maintenance function to clear a night.
@@ -276,8 +351,9 @@ class TownModel(Model):
                     print("X - I, the ", agent.role, " ,[", agent.name, "] have died!")
                 agent.announce_role = False
 
-            # Set visited_by to empty
+            # Set visited_by and visiting to empty
             agent.visited_by = []
+            agent.visiting = None
 
             # Reset protected and attacked flags
             if agent.role != Role.GODFATHER:

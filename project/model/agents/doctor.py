@@ -24,7 +24,7 @@ class Doctor(Villager):
 
     # Custom step of Doctor: is able to pick themselves
     def step(self):
-        strategy = ActionStrategy.KNOWLEDGE
+        strategy = ActionStrategy.RANDOM
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:
