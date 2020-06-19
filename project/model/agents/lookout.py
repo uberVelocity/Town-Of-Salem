@@ -12,7 +12,7 @@ class Lookout(Villager):
         self.visiting = other_agent
 
     def step(self):
-        strategy = ActionStrategy.KNOWLEDGE
+        strategy = ActionStrategy.RANDOM
         if self.is_alive():
             if strategy == ActionStrategy.RANDOM:
                 self.interact(self.pick_random_agent(True))

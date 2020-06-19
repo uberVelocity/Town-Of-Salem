@@ -179,12 +179,21 @@ class TownModel(Model):
                 alive.append(self.agents[i]) 
         return alive
 
+    def get_alive_mafia(self):
+        mafia = []
+        for agent in self.agents:
+            if agent.faction == Faction.MOBSTER:
+                if agent.is_alive():
+                    mafia.append(agent)
+        return mafia
+
     # Advance the model by one step.
     def step(self):
         self.schedule.step()    # Allow agents to do their night actions
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
-        self.vote(Vote.KNOWLEDGE_NO_COOP)  # Vote on who to lynch during the day
+        if len(self.get_alive_villagers()) != 0 and len(self.get_alive_mafia()) != 0:
+            self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
         # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
