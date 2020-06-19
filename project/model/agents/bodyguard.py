@@ -25,7 +25,7 @@ class Bodyguard(Villager):
 
     # Custom step of Bodyguard: is able to guard themselves
     def step(self):
-        strategy = ActionStrategy.KNOWLEDGE
+        strategy = ActionStrategy.RANDOM
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:
