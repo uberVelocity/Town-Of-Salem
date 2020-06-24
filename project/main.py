@@ -19,7 +19,6 @@ if __name__ == "__main__":
     # Get the number of runs (1 by default)
     if len(sys.argv) == 2:
         runs = set_runs(sys.argv[1])
-    # Potentially get interactions argument
     elif len(sys.argv) == 3:
         interactions = True
         runs = set_runs(sys.argv[1])
