@@ -388,14 +388,14 @@ class TownModel(Model):
             if agent.faction == Faction.VILLAGER:
                 for formula in formulas:
                     id, faction = formula
-                    Eval = True
+                    evaluate = True
                     for relation in self.kripke_model.relations[str(agent.name)]:
                         world1 , world2 = relation
                         if world1[id]!= faction or world2[id]!= faction:
-                            Eval = False
+                            evaluate = False
                             break
                     
-                    if Eval and (not (formula in agent.knowledge)):
+                    if evaluate and (not (formula in agent.knowledge)):
                         if self.interactions:
                             print("Added formula",formula,"to knowledge of agent ",agent.name)
                         agent.knowledge.add(formula)
