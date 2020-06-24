@@ -194,6 +194,7 @@ class TownModel(Model):
         self.schedule.step()    # Allow agents to do their night actions
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
+        self.infer_knowledge()
         if len(self.get_alive_villagers()) != 0 and len(self.get_alive_mafia()) != 0:
             strategy_vote = params.strategy_vote
             if strategy_vote == "RANDOM":
@@ -201,52 +202,63 @@ class TownModel(Model):
             elif strategy_vote == "KNOWLEDGE_NO_COOP":
                 strategy_vote = Vote.KNOWLEDGE_NO_COOP
             self.vote(strategy_vote)  # Vote on who to lynch during the day
+
         # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
-    def announce_information(self, strategy):
-        agents = self.alive_agents()
+    def announce_information(self, strategy,dead_agent):
         for agent in self.agents:
-            for alive_agent in agents:
-                if agent.faction == Faction.VILLAGER:
+            if dead_agent.faction == Faction.VILLAGER:
+                # Create fact to add to all agents
+                if self.interactions:
+                    print("I, the ", agent.role, " [", agent.name, "] know before addition: ", agent.knowledge)
+                if strategy == DeathStrategy.FACTION:
+                    fact = (dead_agent.name, str(dead_agent.faction.value))
+                    agent.knowledge.add(fact)
 
-                    # Create fact to add to all villagers
-                    if self.interactions:
-                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know before addition: ", alive_agent.knowledge)
-                    if strategy == DeathStrategy.FACTION:
-                        fact = (agent.name, str(agent.faction.value))
-                        alive_agent.knowledge.add(fact)
+                    # Update kripke model correspondingly
+                    atom = Atom(fact)
+                    self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+                elif strategy == DeathStrategy.ALL:
+                    facts = dead_agent.knowledge
+                    for fact in facts:
+                        agent.knowledge.add(fact)
 
                         # Update kripke model correspondingly
                         atom = Atom(fact)
-                        self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
-                    elif strategy == DeathStrategy.ALL:
-                        facts = agent.knowledge
-                        for fact in facts:
-                            alive_agent.knowledge.add(fact)
+                        self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
 
-                            # Update kripke model correspondingly
-                            atom = Atom(fact)
-                            self.kripke_model = self.kripke_model.solve_a(str(alive_agent.name), atom)
+                # Update all villagers with fact
+                if self.interactions:
+                    print("I, the ", agent.role, " [", agent.name, "] know after addition: ", agent.knowledge)
+            elif dead_agent.faction == Faction.MOBSTER:
+                if self.interactions:
+                    print("I, the ", agent.role, " [", agent.name, "] know before addition: ", agent.knowledge)
 
-                    # Update all villagers with fact
-                    if self.interactions:
-                        print("I, the ", alive_agent.role, " [", alive_agent.name, "] know after addition: ", alive_agent.knowledge)
+                fact = (dead_agent.name, str(dead_agent.faction.value))
+                agent.knowledge.add(fact)
+
+                # Update kripke model correspondingly
+                atom = Atom(fact)
+                self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+                if self.interactions:
+                    print("I, the ", agent.role, " [", agent.name, "] know after addition: ", agent.knowledge)
+
         pass
 
     # Determine whether agent should die
     def resolve_dead(self, agent):
         if agent.attacked == True and agent.protected == False:
             agent.health = Health.DEAD
-            self.announce_information(DeathStrategy.ALL)
+            self.announce_information(DeathStrategy.ALL,agent)
         if agent.mafia_voted == True and self.agents[7].health == Health.DEAD:
             agent.health = Health.DEAD
-            self.announce_information(DeathStrategy.ALL)
+            self.announce_information(DeathStrategy.ALL,agent)
         if self.interactions:
             print("Agent ", agent.name, " visiting:", agent.visiting)
         if (agent.role == Role.MAFIOSO or agent.role == Role.GODFATHER) and (self.agents[4].visiting == agent.visiting):
             agent.health = Health.DEAD
-            self.announce_information(DeathStrategy.FACTION)
+            self.announce_information(DeathStrategy.FACTION,agent)
         pass
 
     # Prints dead agents
@@ -369,6 +381,27 @@ class TownModel(Model):
             agent.framed = False
             agent.mafia_voted = False
 
+    def infer_knowledge(self):
+        formulas = {(0,'0'),(0,'1'),(1,'0'),(1,'1'),(2,'0'),(2,'1'),(3,'0'),(3,'1'),(4,'0'),(4,'1'),
+        (5,'0'),(5,'1'),(6,'0'),(6,'1'),(7,'0'),(7,'1')}
+        for agent in self.alive_agents():
+            if agent.faction == Faction.VILLAGER:
+                for formula in formulas:
+                    id, faction = formula
+                    Eval = True
+                    for relation in self.kripke_model.relations[str(agent.name)]:
+                        world1 , world2 = relation
+                        if world1[id]!= faction or world2[id]!= faction:
+                            Eval = False
+                            break
+                    
+                    if Eval and (not (formula in agent.knowledge)):
+                        if self.interactions:
+                            print("Added formula",formula,"to knowledge of agent ",agent.name)
+                        agent.knowledge.add(formula)
+
+
+    
     # Check that either all villagers or all mobsters are dead.
     # TODO: Make this more efficient through filter / list comprehension / counter
     # that gets incremented after every death.
