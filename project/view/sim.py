@@ -6,9 +6,16 @@ import run_params
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
+"""Initializes working directory to point in main.py location"""
+def init_runtime(self):
+    os.chdir("../")
+
 class Sim(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
+
+        # Change directory to location of main.py
+        os.chdir("../")
 
         """Define GUI widgets"""
         
@@ -68,9 +75,6 @@ class Sim(QtWidgets.QWidget):
 
     # Starts the simulation with given parameters
     def start(self):
-
-        # Change directory to location of main.py
-        os.chdir("../")
 
         # Sets number of runs
         runs = run_params.runs
