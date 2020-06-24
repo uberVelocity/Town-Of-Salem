@@ -71,16 +71,20 @@ class Sim(QtWidgets.QWidget):
 
         # Change directory to location of main.py
         os.chdir("../")
-        print(os.getcwd())
 
         # Sets number of runs
         runs = run_params.runs
         if self.runs.text() != "":
             runs = self.runs.text()
 
+        # Set interaction mode
+        interactions = run_params.interactions
+        if self.dropdown_interactions.currentIndex():
+            interactions = True
+
         # Run the simulation as a subprocess
-        if run_params.interactions:
-            list_files = subprocess.run(["python3", "main.py", str(runs)], "1")
+        if interactions:
+            list_files = subprocess.run(["python3", "main.py", str(runs), "1"])
         else:
             list_files = subprocess.run(["python3", "main.py", str(runs)])
         print("The exit code was: %d" % list_files.returncode)
