@@ -1,5 +1,7 @@
 import sys
 import random
+import subprocess
+
 from PySide2 import QtCore, QtWidgets, QtGui
 
 class Sim(QtWidgets.QWidget):
@@ -40,6 +42,11 @@ class Sim(QtWidgets.QWidget):
         # Current proof of concept: takes value of field and changes
         # title with it
         self.title.setText(self.dropdown_strategy.currentText())
+
+        # Run the simulation as a subprocess
+        list_files = subprocess.run(["python3", "test.py"])
+        print("The exit code was: %d" % list_files.returncode)
+        
         pass
 
 if __name__ == "__main__":
