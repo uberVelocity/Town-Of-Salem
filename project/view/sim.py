@@ -10,28 +10,55 @@ class Sim(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
-        # Define GUI widgets
+        """Define GUI widgets"""
+        
+        # Start button of simulation
         self.start_button = QtWidgets.QPushButton("Start")
         
+        # Title of GUI
         self.title = QtWidgets.QLabel("Town of Salem")
         self.title.setAlignment(QtCore.Qt.AlignCenter)
 
+        # Text labels
+        self.action_text = QtWidgets.QLabel("Action strategy:")
         self.vote_text = QtWidgets.QLabel("Voting strategy:")
         self.runs_text = QtWidgets.QLabel("Runs:")
+        self.interactions_text = QtWidgets.QLabel("Interactions:")
 
-        self.dropdown_strategy = QtWidgets.QComboBox()
-        self.dropdown_strategy.addItem("RANDOM")
-        self.dropdown_strategy.addItem("KNOWLEDGE")
+        # Agent strategy when voting
+        self.dropdown_vote = QtWidgets.QComboBox()
+        self.dropdown_vote.addItem("RANDOM")
+        self.dropdown_vote.addItem("KNOWLEDGE")
 
+        # Agent strategy when doing an action
+        self.dropdown_action = QtWidgets.QComboBox()
+        self.dropdown_action.addItem("RANDOM")
+        self.dropdown_action.addItem("KNOWLEDGE")
+
+        # Simulation display interactions between agent
+        self.dropdown_interactions = QtWidgets.QComboBox()
+        self.dropdown_interactions.addItem("OFF")
+        self.dropdown_interactions.addItem("ON")
+
+        # Number of runs input field
         self.runs = QtWidgets.QLineEdit()
 
         # Define layout
         self.layout = QtWidgets.QFormLayout()
         
-        # Add widgets to layout
+        """Add widgets to layout"""
+        # Add title to GUI
         self.layout.addWidget(self.title)
-        self.layout.addRow(self.vote_text, self.dropdown_strategy)
+
+        # Add dropdowns to GUI
+        self.layout.addRow(self.action_text, self.dropdown_action)
+        self.layout.addRow(self.vote_text, self.dropdown_vote)
+        self.layout.addRow(self.interactions_text, self.dropdown_interactions)
+        
+        # Add input fields to GUI
         self.layout.addRow(self.runs_text, self.runs)
+        
+        # Add buttons to GUI
         self.layout.addWidget(self.start_button)
         
         # Set layout to main window

@@ -1,4 +1,5 @@
 from model.model import TownModel
+from view import run_params
 import sys, os
 
 def is_num(string):
@@ -13,8 +14,7 @@ def set_runs(num):
     
 
 if __name__ == "__main__":
-    interactions = False
-    runs = 1
+    interactions = run_params.interactions
 
     # Get the number of runs (1 by default)
     if len(sys.argv) == 2:
