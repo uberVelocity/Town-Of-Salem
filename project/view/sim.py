@@ -1,6 +1,8 @@
 import sys
 import random
 import subprocess
+import os
+import run_params
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
@@ -37,14 +39,23 @@ class Sim(QtWidgets.QWidget):
 
         self.start_button.clicked.connect(self.start)
 
-    # TODO: Write values to config file and start sim
+    # Starts the simulation with given parameters
     def start(self):
-        # Current proof of concept: takes value of field and changes
-        # title with it
-        self.title.setText(self.dropdown_strategy.currentText())
+
+        # Change directory to location of main.py
+        os.chdir("../")
+        print(os.getcwd())
+
+        # Sets number of runs
+        runs = run_params.runs
+        if self.runs.text() != "":
+            runs = self.runs.text()
 
         # Run the simulation as a subprocess
-        list_files = subprocess.run(["python3", "test.py"])
+        if run_params.interactions:
+            list_files = subprocess.run(["python3", "main.py", str(runs)], "1")
+        else:
+            list_files = subprocess.run(["python3", "main.py", str(runs)])
         print("The exit code was: %d" % list_files.returncode)
         
         pass
