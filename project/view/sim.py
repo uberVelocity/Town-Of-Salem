@@ -35,7 +35,7 @@ class Sim(QtWidgets.QWidget):
         # Agent strategy when voting
         self.dropdown_vote = QtWidgets.QComboBox()
         self.dropdown_vote.addItem("RANDOM")
-        self.dropdown_vote.addItem("KNOWLEDGE")
+        self.dropdown_vote.addItem("KNOWLEDGE_NO_COOP")
 
         # Agent strategy when doing an action
         self.dropdown_action = QtWidgets.QComboBox()
@@ -86,6 +86,19 @@ class Sim(QtWidgets.QWidget):
         if self.dropdown_interactions.currentIndex():
             interactions = True
 
+        # Set voting strategy
+        vote_strategy = self.dropdown_vote.currentText()
+        
+        # Set action strategy
+        action_strategy = self.dropdown_action.currentText()
+
+        # Config params as a subprocess
+        os.chdir("model")
+        print(os.getcwd())
+        config_sub = subprocess.run(["sh", "load_params.sh", vote_strategy, action_strategy])
+        print("The exit code of config setup was: %d" % config_sub.returncode)
+        os.chdir("../")
+        
         # Run the simulation as a subprocess
         if interactions:
             list_files = subprocess.run(["python3", "main.py", str(runs), "1"])

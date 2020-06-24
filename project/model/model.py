@@ -1,6 +1,8 @@
 import enum
 import timeit
 
+from model import params
+
 from copy import copy
 
 from math import floor
@@ -193,7 +195,12 @@ class TownModel(Model):
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
         if len(self.get_alive_villagers()) != 0 and len(self.get_alive_mafia()) != 0:
-            self.vote(Vote.RANDOM)  # Vote on who to lynch during the day
+            strategy_vote = params.strategy_vote
+            if strategy_vote == "RANDOM":
+                strategy_vote = Vote.RANDOM
+            elif strategy_vote == "KNOWLEDGE_NO_COOP":
+                strategy_vote = Vote.KNOWLEDGE_NO_COOP
+            self.vote(strategy_vote)  # Vote on who to lynch during the day
         # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
