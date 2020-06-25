@@ -3,8 +3,8 @@ from random import choice
 
 class Lookout(Villager):
 
-    def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, Role.LOOKOUT, interactions, Faction.VILLAGER)
+    def __init__(self, unique_id, model, interactions=False, action=ActionStrategy.RANDOM):
+        super().__init__(unique_id, model, Role.LOOKOUT, interactions, Faction.VILLAGER, action)
 
     # Print the current visited_by list of the agent (not useful at all and potentially incomplete list)
     def interact(self, other_agent):
@@ -12,7 +12,7 @@ class Lookout(Villager):
         self.visiting = other_agent
 
     def step(self):
-        strategy = ActionStrategy.RANDOM
+        strategy = self.action
         if self.is_alive():
             if strategy == ActionStrategy.RANDOM:
                 self.interact(self.pick_random_agent(True))

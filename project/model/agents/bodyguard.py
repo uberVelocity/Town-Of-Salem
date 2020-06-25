@@ -3,8 +3,8 @@ from random import choice
 
 class Bodyguard(Villager):
 
-    def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, Role.BODYGUARD, interactions, Faction.VILLAGER)
+    def __init__(self, unique_id, model, interactions=False, action=ActionStrategy.RANDOM):
+        super().__init__(unique_id, model, Role.BODYGUARD, interactions, Faction.VILLAGER, action)
         self.vests = 1
 
     # Prints who they're bodyguarding.
@@ -25,7 +25,7 @@ class Bodyguard(Villager):
 
     # Custom step of Bodyguard: is able to guard themselves
     def step(self):
-        strategy = ActionStrategy.RANDOM
+        strategy = self.action
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:

@@ -30,7 +30,7 @@ class ActionStrategy(enum.Enum):
 class TownAgent(Agent):
 
     # Agent that plays the game.
-    def __init__(self, unique_id, model, role, interactions, faction="Default", health=Health.ALIVE):
+    def __init__(self, unique_id, model, role, interactions, faction="Default", action=ActionStrategy.RANDOM, health=Health.ALIVE):
         super().__init__(unique_id, model)
         self.interactions = interactions
         
@@ -38,6 +38,7 @@ class TownAgent(Agent):
         self.name = unique_id
         self.role = role
         self.health = health
+        self.action = action
 
         # Set of knowledge modeled by a tuple containing (agent_id, agent_faction)
         init_knowledge = (self.name, str(self.faction.value))
@@ -102,7 +103,6 @@ class TownAgent(Agent):
     
     # The step each agent does during the game.
     def step(self):
-
         # Night phase: the agent chooses another agent to interact with.
         if self.is_alive():
             self.interact(self.pick_random_agent(True))
@@ -118,12 +118,11 @@ class TownAgent(Agent):
 
 class Villager(TownAgent):
     """Agent that is part of the Villager faction."""
-    def __init__(self, unique_id, model, role, interactions=False, faction=Faction.VILLAGER):
-        super().__init__(unique_id, model, role, interactions, faction)
-    
+    def __init__(self, unique_id, model, role, interactions=False, faction=Faction.VILLAGER, action=ActionStrategy.RANDOM):
+        super().__init__(unique_id, model, role, interactions, faction, action)
+
 
 class Mobster(TownAgent):
     """Agent that is part of the Mobster faction."""
-    def __init__(self, unique_id, model, role, interactions=False, faction=Faction.MOBSTER):
-        super().__init__(unique_id, model, role, interactions, faction)
-
+    def __init__(self, unique_id, model, role, interactions=False, faction=Faction.MOBSTER, action=ActionStrategy.RANDOM):
+        super().__init__(unique_id, model, role, interactions, faction, action)

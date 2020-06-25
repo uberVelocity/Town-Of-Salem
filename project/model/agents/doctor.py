@@ -2,8 +2,8 @@ from .agent import Villager, Role, Faction, Health, ActionStrategy
 from random import choice
 class Doctor(Villager):
 
-    def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, Role.DOCTOR, interactions, Faction.VILLAGER)
+    def __init__(self, unique_id, model, interactions=False, action=ActionStrategy.RANDOM):
+        super().__init__(unique_id, model, Role.DOCTOR, interactions, Faction.VILLAGER, action)
         self.self_heals = 1
 
     # Pick any agent from the game, including self and give them PROTECTED
@@ -24,7 +24,7 @@ class Doctor(Villager):
 
     # Custom step of Doctor: is able to pick themselves
     def step(self):
-        strategy = ActionStrategy.RANDOM
+        strategy = self.action
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:

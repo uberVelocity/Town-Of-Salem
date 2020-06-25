@@ -4,8 +4,8 @@ from copy import copy
 
 class Sheriff(Villager):
 
-    def __init__(self, unique_id, model, interactions=False):
-        super().__init__(unique_id, model, Role.SHERIFF, interactions, Faction.VILLAGER)
+    def __init__(self, unique_id, model, interactions=False, action=ActionStrategy.RANDOM):
+        super().__init__(unique_id, model, Role.SHERIFF, interactions, Faction.VILLAGER, action)
 
     # A sheriff visits someone and gets their faction
     def interact(self, other_agent):
@@ -13,7 +13,7 @@ class Sheriff(Villager):
         self.visiting = other_agent
 
     def step(self):
-        strategy = ActionStrategy.RANDOM
+        strategy = self.action
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:

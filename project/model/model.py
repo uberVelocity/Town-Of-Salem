@@ -46,7 +46,19 @@ class TownModel(Model):
     
     # A model with some number of agents.
     def __init__(self, num_villagers, num_mobsters, interactions):
+        self.infer = params.infer
+        if self.infer == "OFF":
+            self.infer = False
+        else:
+            self.infer = True
         self.interactions = interactions
+        self.action = params.strategy_action
+        self.strategy_vote = params.strategy_vote
+        if self.strategy_vote == "RANDOM":
+            self.strategy_vote = Vote.RANDOM
+        elif self.strategy_vote == "KNOWLEDGE_NO_COOP":
+            self.strategy_vote = Vote.KNOWLEDGE_NO_COOP
+        
         self.init_agents(num_villagers, num_mobsters)
 
         # self.show_agents()
@@ -64,15 +76,15 @@ class TownModel(Model):
         temp = []
 
         # Create Doctor
-        doctor = Doctor(0, self, self.interactions)
+        doctor = Doctor(0, self, self.interactions, self.action)
         temp.append(doctor)
 
         # Create Lookout
-        lookout = Lookout(1, self, self.interactions)
+        lookout = Lookout(1, self, self.interactions, self.action)
         temp.append(lookout)
 
         # Create Sheriff
-        sheriff = Sheriff(2, self, self.interactions)
+        sheriff = Sheriff(2, self, self.interactions, self.action)
         temp.append(sheriff)
 
         # Create Mayor
@@ -80,7 +92,7 @@ class TownModel(Model):
         temp.append(mayor)
 
         # Create Bodyguard
-        bodyguard = Bodyguard(4, self, self.interactions)
+        bodyguard = Bodyguard(4, self, self.interactions, self.action)
         temp.append(bodyguard)
 
         # Create Godfather
@@ -194,14 +206,10 @@ class TownModel(Model):
         self.schedule.step()    # Allow agents to do their night actions
         self.resolve_night()    # Resolve the actions of the agents
         self.end_night()        # Reset visited_by, statuses etc
-        self.infer_knowledge()
+        if self.infer:
+            self.infer_knowledge()
         if len(self.get_alive_villagers()) != 0 and len(self.get_alive_mafia()) != 0:
-            strategy_vote = params.strategy_vote
-            if strategy_vote == "RANDOM":
-                strategy_vote = Vote.RANDOM
-            elif strategy_vote == "KNOWLEDGE_NO_COOP":
-                strategy_vote = Vote.KNOWLEDGE_NO_COOP
-            self.vote(strategy_vote)  # Vote on who to lynch during the day
+            self.vote(self.strategy_vote)  # Vote on who to lynch during the day
 
         # self.kripke_model.print()
         
