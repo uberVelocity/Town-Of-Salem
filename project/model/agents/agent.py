@@ -59,6 +59,11 @@ class TownAgent(Agent):
         self.agents = []
         self.visited_by = []
         self.visiting = None
+    
+    def __repr__(self):
+        return str(self.role)
+    def __str__(self):
+        return str(self.name)
 
     # Interact with other_agent depending on self.role
     # TODO: Include a strategy parameter that specifies the interaction strategy.
