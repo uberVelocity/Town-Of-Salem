@@ -25,6 +25,7 @@ class Doctor(Villager):
     # Custom step of Doctor: is able to pick themselves
     def step(self):
         strategy = self.action
+
         if self.is_alive():
             # Picks random agent from alive agents, including self
             if strategy == ActionStrategy.RANDOM:
@@ -37,6 +38,7 @@ class Doctor(Villager):
                 for id, faction in self.knowledge:
                     if faction == str(Faction.VILLAGER.value) and self.agents[id].health == Health.ALIVE:
                         villagers.append(id)
+
                 if self.interactions:
                     print("List of potential healing buddies: ", villagers)
 
