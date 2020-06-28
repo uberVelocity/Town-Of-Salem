@@ -520,7 +520,8 @@ class TownModel(Model):
             return dead_mobsters == 3
         if self.fbi:
             if self.sheriff_knows():
-                print("Sherrif discovered Mafia network.TOWN WINS!")
+                print("Sherrif discovered Mafia network. TOWN WINS!")
+
                 winner[Faction.VILLAGER.value] += 1
                 return self.sheriff_knows()
 
