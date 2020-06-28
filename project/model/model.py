@@ -518,7 +518,8 @@ class TownModel(Model):
             winner[Faction.VILLAGER.value] += 1
         if self.fbi:
             if self.sherrif_knows():
-                print("Sherrif discovered Mafia network.TOWN WINS!")
+                if self.interactions:
+                    print("Sherrif discovered Mafia network.TOWN WINS!")
                 winner[Faction.VILLAGER.value] += 1
 
 
