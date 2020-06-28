@@ -74,6 +74,7 @@ class TownAgent(Agent):
             print('I, agent ', self.name, ' am interacting with agent ', other_agent.name)
 
     # Gets a random agent that is alive from the game. Exclude self picks agent that is not themself.
+    # TODO: switch if in for loop for efficiency purposes
     def pick_random_agent(self, exclude_self):
         agents = []
         if exclude_self == True:
