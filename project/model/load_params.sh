@@ -7,4 +7,5 @@ fi
 
 printf "strategy_vote = '$1'\n" >> $FILE
 printf "strategy_action = '$2'\n" >> $FILE
-printf "infer = '$3'" >> $FILE
+printf "infer = '$3'\n" >> $FILE
+printf "fbi = '$4'" >> $FILE

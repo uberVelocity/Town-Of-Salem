@@ -31,7 +31,9 @@ class Sim(QtWidgets.QWidget):
         self.vote_text = QtWidgets.QLabel("Voting strategy:")
         self.runs_text = QtWidgets.QLabel("Runs:")
         self.infer_text = QtWidgets.QLabel("Infer knowledge: ")
+        self.fbi = QtWidgets.QLabel("FBI promotion for sheriff")
         self.interactions_text = QtWidgets.QLabel("Interactions:")
+        
 
         # Agent strategy when voting
         self.dropdown_vote = QtWidgets.QComboBox()
@@ -48,6 +50,11 @@ class Sim(QtWidgets.QWidget):
         self.dropdown_infer = QtWidgets.QComboBox()
         self.dropdown_infer.addItem("OFF")
         self.dropdown_infer.addItem("ON")
+
+        # FBI agents role toggle
+        self.dropdown_fbi = QtWidgets.QComboBox()
+        self.dropdown_fbi.addItem("OFF")
+        self.dropdown_fbi.addItem("ON")
 
         # Simulation display interactions between agent
         self.dropdown_interactions = QtWidgets.QComboBox()
@@ -69,6 +76,7 @@ class Sim(QtWidgets.QWidget):
         self.layout.addRow(self.action_text, self.dropdown_action)
         self.layout.addRow(self.vote_text, self.dropdown_vote)
         self.layout.addRow(self.infer_text, self.dropdown_infer)
+        self.layout.addRow(self.fbi, self.dropdown_fbi)
         self.layout.addRow(self.interactions_text, self.dropdown_interactions)
         
         # Add input fields to GUI
@@ -104,10 +112,14 @@ class Sim(QtWidgets.QWidget):
         # Set knowledge inference
         infer = self.dropdown_infer.currentText()
 
+        #Set FBI role
+
+        fbi = self.dropdown_fbi.currentText()
+
         # Config params as a subprocess
         os.chdir("model")
         print(os.getcwd())
-        config_sub = subprocess.run(["sh", "load_params.sh", vote_strategy, action_strategy, infer])
+        config_sub = subprocess.run(["sh", "load_params.sh", vote_strategy, action_strategy, infer,fbi])
         print("The exit code of config setup was: %d" % config_sub.returncode)
         os.chdir("../")
         

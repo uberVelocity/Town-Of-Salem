@@ -47,6 +47,11 @@ class TownModel(Model):
     
     # A model with some number of agents.
     def __init__(self, num_villagers, num_mobsters, interactions):
+        self.fbi = params.fbi
+        if self.fbi == "OFF":
+            self.fbi = False
+        else:
+            self.fbi = True
         self.infer = params.infer
         if self.infer == "OFF":
             self.infer = False
@@ -67,7 +72,7 @@ class TownModel(Model):
         # self.show_agents()
         self.distributeAgents()
         self.kripke_model = TownOfSalemAgents(8).ks
-        self.set_init_knowledge()
+        #self.set_init_knowledge()
 
     # Initialize the agents of the game.
     def init_agents(self, num_villagers, num_mobsters):
@@ -240,6 +245,16 @@ class TownModel(Model):
 
     def set_init_knowledge(self):
         fact = (6,'1')
+        for agent in self.alive_agents():
+            agent.knowledge.add(fact)
+            atom = Atom(fact)
+            self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+        fact = (5,'1')
+        for agent in self.alive_agents():
+            agent.knowledge.add(fact)
+            atom = Atom(fact)
+            self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
+        fact = (7,'1')
         for agent in self.alive_agents():
             agent.knowledge.add(fact)
             atom = Atom(fact)
@@ -473,6 +488,18 @@ class TownModel(Model):
     # Check that either all villagers or all mobsters are dead.
     # TODO: Make this more efficient through filter / list comprehension / counter
     # that gets incremented after every death.
+    def sherrif_knows(self):
+        if self.agents[2].is_alive():
+            if len(self.agents[2].knowledge) == 8:
+                if len(self.get_alive_villagers()) > 1:
+                    return True
+                else:
+                    return False
+            else:
+                return False
+        
+        return False
+
     def game_over(self, winner):
         dead_villagers = 0
         dead_mobsters = 0
@@ -489,8 +516,13 @@ class TownModel(Model):
         if dead_mobsters == 3:
             print("TOWN WINS!")
             winner[Faction.VILLAGER.value] += 1
+        if self.fbi:
+            if self.sherrif_knows():
+                print("Sherrif discovered Mafia network.TOWN WINS!")
+                winner[Faction.VILLAGER.value] += 1
 
-        return (dead_villagers == 5 or dead_mobsters == 3)
+
+        return (dead_villagers == 5 or dead_mobsters == 3 or self.sherrif_knows())
 
     # Distribute agents list to all agents.
     def distributeAgents(self):
