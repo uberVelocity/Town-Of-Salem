@@ -37,6 +37,7 @@ class Vote(enum.Enum):
     # Villagers vote on a random person from a subset that excludes known villagers
     # Mafia vote on random villagers (uncoordinated)
     KNOWLEDGE_NO_COOP = 1
+    KNOWLEDGE_VOTE_AGAINST_MAFIA = 2
 
 class DeathStrategy(enum.Enum):
     FACTION = 0
@@ -58,6 +59,8 @@ class TownModel(Model):
             self.strategy_vote = Vote.RANDOM
         elif self.strategy_vote == "KNOWLEDGE_NO_COOP":
             self.strategy_vote = Vote.KNOWLEDGE_NO_COOP
+        elif self.strategy_vote == "KNOWLEDGE_VOTE_AGAINST_MAFIA":
+            self.strategy_vote = Vote.KNOWLEDGE_VOTE_AGAINST_MAFIA
         
         self.init_agents(num_villagers, num_mobsters)
 
@@ -128,7 +131,6 @@ class TownModel(Model):
     def vote(self, strategy):
         alive = self.alive_agents()
         votes = [0] * 8
-
         # A random Townsman is voted to be lynched per day.
         if strategy == Vote.RANDOM:
             for agent in alive:
@@ -172,6 +174,53 @@ class TownModel(Model):
                     if len(villagers) != 0:
                         nominee = choice(villagers)
                         nominee = nominee.name
+                        if agent.role == Role.MAYOR:
+                            if agent.revealed:
+                                votes[nominee] += 2
+                        votes[nominee] += 1
+                        if self.interactions:
+                            print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.List of potential agents:",villagers)
+            
+        elif strategy == Vote.KNOWLEDGE_VOTE_AGAINST_MAFIA:
+            
+            for agent in alive:
+                potential_agents = copy(alive)
+                known_mafia = []
+                # Villager KNOWLEDGE_VOTE_AGAINST_MAFIA strategy
+                if agent.faction == Faction.VILLAGER:
+                    for id, faction in agent.knowledge:
+                        if faction == str(Faction.VILLAGER.value) and self.agents[id].is_alive():
+                            potential_agents.remove(self.agents[id])
+                        elif faction == str(Faction.MOBSTER.value) and self.agents[id].is_alive():
+                            known_mafia.append(self.agents[id])
+                    
+                    # Pick random alive townsman, excluding self
+                    if len(known_mafia) != 0:
+                        nominee = known_mafia[randint(0, len(known_mafia) - 1)].name
+                        if agent.role == Role.MAYOR:
+                            if agent.revealed:
+                                votes[nominee] += 2
+                        votes[nominee] += 1
+                    elif len(potential_agents) != 0:
+                        nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+                        while nominee == agent:
+                            nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+                        if agent.role == Role.MAYOR:
+                            if agent.revealed:
+                                votes[nominee] += 2
+                        votes[nominee] += 1
+                    if self.interactions:
+                        if len(known_mafia) == 0:
+                            print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of potential agents:",potential_agents)
+                        elif len(known_mafia) != 0 :
+                            print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of known mafia:",known_mafia)
+                
+                # Mafia KNOWLEDGE_NO_COOP strategy
+                if agent.faction == Faction.MOBSTER:
+                    villagers = self.get_alive_villagers()
+                    if len(villagers) != 0:
+                        nominee = choice(villagers)
+                        nominee = nominee.name
 
                         votes[nominee] += 1
                         if self.interactions:
@@ -190,6 +239,11 @@ class TownModel(Model):
         pass
 
     def set_init_knowledge(self):
+        fact = (6,'1')
+        for agent in self.alive_agents():
+            agent.knowledge.add(fact)
+            atom = Atom(fact)
+            self.kripke_model = self.kripke_model.solve_a(str(agent.name), atom)
         pass
 
     # Gets the agents which are still alive
@@ -217,7 +271,6 @@ class TownModel(Model):
             self.infer_knowledge()
         if len(self.get_alive_villagers()) != 0 and len(self.get_alive_mafia()) != 0:
             self.vote(self.strategy_vote)  # Vote on who to lynch during the day
-
         # self.kripke_model.print()
         
     # Updates agent's knowledge and updates kripke model
@@ -436,6 +489,7 @@ class TownModel(Model):
         if dead_mobsters == 3:
             print("TOWN WINS!")
             winner[Faction.VILLAGER.value] += 1
+
         return (dead_villagers == 5 or dead_mobsters == 3)
 
     # Distribute agents list to all agents.

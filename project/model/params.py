@@ -1,3 +1,3 @@
-strategy_vote = 'RANDOM'
-strategy_action = 'RANDOM'
-infer = 'OFF'
+strategy_vote = 'KNOWLEDGE_VOTE_AGAINST_MAFIA'
+strategy_action = 'KNOWLEDGE'
+infer = 'ON'
