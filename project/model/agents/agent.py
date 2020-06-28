@@ -39,6 +39,10 @@ class TownAgent(Agent):
         self.role = role
         self.health = health
         self.action = action
+        if self.action == "RANDOM":
+            self.action = ActionStrategy.RANDOM
+        elif self.action == "KNOWLEDGE":
+            self.action = ActionStrategy.KNOWLEDGE
 
         # Set of knowledge modeled by a tuple containing (agent_id, agent_faction)
         init_knowledge = (self.name, str(self.faction.value))
@@ -55,6 +59,11 @@ class TownAgent(Agent):
         self.agents = []
         self.visited_by = []
         self.visiting = None
+    
+    def __repr__(self):
+        return str(self.role)
+    def __str__(self):
+        return str(self.name)
 
     # Interact with other_agent depending on self.role
     # TODO: Include a strategy parameter that specifies the interaction strategy.

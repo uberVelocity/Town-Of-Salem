@@ -142,6 +142,9 @@ class TownModel(Model):
                 if agent.role == Role.MAYOR:
                     if agent.revealed:
                         votes[nominee] += 2
+                if self.interactions:
+                    print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.")
+
                 votes[nominee] += 1 
         elif strategy == Vote.KNOWLEDGE_NO_COOP:
             for agent in alive:
@@ -160,6 +163,8 @@ class TownModel(Model):
                             nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
 
                         votes[nominee] += 1
+                        if self.interactions:
+                            print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of potential agents:",potential_agents)
                 
                 # Mafia KNOWLEDGE_NO_COOP strategy
                 if agent.faction == Faction.MOBSTER:
@@ -169,6 +174,8 @@ class TownModel(Model):
                         nominee = nominee.name
 
                         votes[nominee] += 1
+                        if self.interactions:
+                            print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.List of potential agents:",villagers)
             pass
 
         # Check for majority
