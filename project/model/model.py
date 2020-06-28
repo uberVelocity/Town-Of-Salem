@@ -488,7 +488,7 @@ class TownModel(Model):
     # Check that either all villagers or all mobsters are dead.
     # TODO: Make this more efficient through filter / list comprehension / counter
     # that gets incremented after every death.
-    def sherrif_knows(self):
+    def sheriff_knows(self):
         if self.agents[2].is_alive():
             if len(self.agents[2].knowledge) == 8:
                 if len(self.get_alive_villagers()) > 1:
@@ -513,16 +513,19 @@ class TownModel(Model):
         if dead_villagers == 5:
             print("MAFIA WINS!")
             winner[Faction.MOBSTER.value] += 1 
+            return dead_villagers == 5
         if dead_mobsters == 3:
             print("TOWN WINS!")
             winner[Faction.VILLAGER.value] += 1
+            return dead_mobsters == 3
         if self.fbi:
-            if self.sherrif_knows():
+            if self.sheriff_knows():
                 print("Sherrif discovered Mafia network.TOWN WINS!")
                 winner[Faction.VILLAGER.value] += 1
+                return self.sheriff_knows()
 
 
-        return (dead_villagers == 5 or dead_mobsters == 3 or self.sherrif_knows())
+        return (dead_villagers == 5 or dead_mobsters == 3 or self.sheriff_knows())
 
     # Distribute agents list to all agents.
     def distributeAgents(self):
