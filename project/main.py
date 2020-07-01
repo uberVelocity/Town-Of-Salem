@@ -48,3 +48,4 @@ if __name__ == "__main__":
         # Print final number of wins per faction at the end
         print("Villager wins: " + str(winner[0]))
         print("Mafia wins: " + str(winner[1]))
+        print(f"Mafia win rate: {winner[1] / 1000}")
