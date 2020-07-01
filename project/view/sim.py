@@ -40,6 +40,7 @@ class Sim(QtWidgets.QWidget):
         self.dropdown_vote.addItem("RANDOM")
         self.dropdown_vote.addItem("KNOWLEDGE_NO_COOP")
         self.dropdown_vote.addItem("KNOWLEDGE_VOTE_AGAINST_MAFIA")
+        self.dropdown_vote.addItem("KNOWLEDGE_COOP_VILLAGERS")
 
         # Agent strategy when doing an action
         self.dropdown_action = QtWidgets.QComboBox()

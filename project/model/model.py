@@ -30,6 +30,8 @@ from mesa.time import BaseScheduler
 from .mlsolver.kripke_model import TownOfSalemAgents
 from .mlsolver.formula import *
 
+from collections import Counter
+
 class Vote(enum.Enum):
     # Each agent votes randomly on another agent
     RANDOM = 0
@@ -38,6 +40,7 @@ class Vote(enum.Enum):
     # Mafia vote on random villagers (uncoordinated)
     KNOWLEDGE_NO_COOP = 1
     KNOWLEDGE_VOTE_AGAINST_MAFIA = 2
+    KNOWLEDGE_COOP_VILLAGERS = 3
 
 class DeathStrategy(enum.Enum):
     FACTION = 0
@@ -66,6 +69,8 @@ class TownModel(Model):
             self.strategy_vote = Vote.KNOWLEDGE_NO_COOP
         elif self.strategy_vote == "KNOWLEDGE_VOTE_AGAINST_MAFIA":
             self.strategy_vote = Vote.KNOWLEDGE_VOTE_AGAINST_MAFIA
+        elif self.strategy_vote == "KNOWLEDGE_COOP_VILLAGERS":
+            self.strategy_vote = Vote.KNOWLEDGE_COOP_VILLAGERS
         
         self.init_agents(num_villagers, num_mobsters)
 
@@ -153,6 +158,7 @@ class TownModel(Model):
                     print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.")
 
                 votes[nominee] += 1 
+        #Strategy for voting using knowledge by both sides
         elif strategy == Vote.KNOWLEDGE_NO_COOP:
             for agent in alive:
                 potential_agents = copy(alive)
@@ -185,7 +191,7 @@ class TownModel(Model):
                         votes[nominee] += 1
                         if self.interactions:
                             print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.List of potential agents:",villagers)
-            
+        #Similar to previous strategy but now villagers try to vote for mafia instead of not voting for a villager
         elif strategy == Vote.KNOWLEDGE_VOTE_AGAINST_MAFIA:
             
             for agent in alive:
@@ -199,7 +205,7 @@ class TownModel(Model):
                         elif faction == str(Faction.MOBSTER.value) and self.agents[id].is_alive():
                             known_mafia.append(self.agents[id])
                     
-                    # Pick random alive townsman, excluding self
+                    # Vote for random mafia(if known), otherwise vote for someone who you don't know is a villager 
                     if len(known_mafia) != 0:
                         nominee = known_mafia[randint(0, len(known_mafia) - 1)].name
                         if agent.role == Role.MAYOR:
@@ -220,7 +226,7 @@ class TownModel(Model):
                         elif len(known_mafia) != 0 :
                             print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of known mafia:",known_mafia)
                 
-                # Mafia KNOWLEDGE_NO_COOP strategy
+                # Mafia KNOWLEDGE_VOTE_AGAINST_MAFIA strategy
                 if agent.faction == Faction.MOBSTER:
                     villagers = self.get_alive_villagers()
                     if len(villagers) != 0:
@@ -231,13 +237,82 @@ class TownModel(Model):
                         if self.interactions:
                             print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.List of potential agents:",villagers)
             pass
+        # Strategy where villagers try to vote in cooperation
 
+        elif strategy == Vote.KNOWLEDGE_COOP_VILLAGERS:
+            previous_votes = []
+            for agent in alive:
+                coop = False
+                potential_agents = copy(alive)
+                known_mafia = []
+                if agent.faction == Faction.VILLAGER:
+                    if previous_votes:
+                        potential_votes = []
+                        for previous_vote in previous_votes:
+                            
+                            if (previous_vote[0],'0') in agent.knowledge and (previous_vote[1],'0') not in agent.knowledge:
+                                potential_votes.append(previous_vote[1])
+                                coop = True
+                        if coop == True:
+                            potential_votes.sort(reverse = True)
+                            nominee = potential_votes[0]
+                            if agent.role == Role.MAYOR:
+                                if agent.revealed:
+                                    votes[nominee] += 2
+                            votes[nominee] += 1
+                            previous_votes.append((agent.unique_id,nominee))
+                            if self.interactions:
+                                if len(known_mafia) == 0:
+                                    print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of potential agents:",potential_agents," based on other villager vote")
+                                elif len(known_mafia) != 0 :
+                                    print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of known mafia:",known_mafia," based on other villager vote")
+                    if not previous_votes or not coop :
+                        # Villager KNOWLEDGE_COOP_VILLAGERS
+                        if agent.faction == Faction.VILLAGER:
+                            for id, faction in agent.knowledge:
+                                if faction == str(Faction.VILLAGER.value) and self.agents[id].is_alive():
+                                    potential_agents.remove(self.agents[id])
+                                elif faction == str(Faction.MOBSTER.value) and self.agents[id].is_alive():
+                                    known_mafia.append(self.agents[id])
+                            
+                            # Vote for random mafia(if known), otherwise vote for someone who you don't know is a villager 
+                            if len(known_mafia) != 0:
+                                nominee = known_mafia[randint(0, len(known_mafia) - 1)].name
+                                if agent.role == Role.MAYOR:
+                                    if agent.revealed:
+                                        votes[nominee] += 2
+                                votes[nominee] += 1
+                            elif len(potential_agents) != 0:
+                                nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+                                while nominee == agent:
+                                    nominee = potential_agents[randint(0, len(potential_agents) - 1)].name
+                            if agent.role == Role.MAYOR:
+                                if agent.revealed:
+                                    votes[nominee] += 2  
+                            votes[nominee] += 1
+                            previous_votes.append((agent.unique_id,nominee))
+                            if self.interactions:
+                                if len(known_mafia) == 0:
+                                    print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of potential agents:",potential_agents)
+                                elif len(known_mafia) != 0 :
+                                    print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched. List of known mafia:",known_mafia)
+
+
+                if agent.faction == Faction.MOBSTER:
+                        villagers = self.get_alive_villagers()
+                        if len(villagers) != 0:
+                            nominee = choice(villagers)
+                            nominee = nominee.name
+
+                            votes[nominee] += 1
+                            if self.interactions:
+                                print("I, [", agent.unique_id, "], voted  ", nominee, " to be lynched.List of potential agents:",villagers)
         # Check for majority
         for i, vote in enumerate(votes):
             if vote >= floor(len(alive) / 2) + 1:
                 self.agents[i].health = Health.DEAD
                 if self.interactions:
-                    print("DEAD - Linchying ", self.agents[nominee], " with ", votes[nominee], " votes")
+                    print("DEAD - Linchying ", self.agents[i], " with ", votes[i], " votes")
                 break
         if self.interactions:
             print("VOTES: ", votes, "\n")

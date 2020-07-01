@@ -1,4 +1,4 @@
-strategy_vote = 'RANDOM'
-strategy_action = 'RANDOM'
-infer = 'OFF'
+strategy_vote = 'KNOWLEDGE_COOP_VILLAGERS'
+strategy_action = 'KNOWLEDGE'
+infer = 'ON'
 fbi = 'OFF'
