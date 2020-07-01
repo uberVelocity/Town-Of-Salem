@@ -489,6 +489,8 @@ class TownModel(Model):
     # TODO: Make this more efficient through filter / list comprehension / counter
     # that gets incremented after every death.
     def sheriff_knows(self):
+        if self.fbi != 1:
+            return False
         if self.agents[2].is_alive():
             if len(self.agents[2].knowledge) == 8:
                 if len(self.get_alive_villagers()) > 1:
