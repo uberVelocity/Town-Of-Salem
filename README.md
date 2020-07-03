@@ -33,10 +33,11 @@ happens. If you target yourself, you will use your bulletproof vest, gaining a t
 We use python multi-agent library [MESA](https://github.com/projectmesa/mesa) for agent based modeling and [mlsolver](https://github.com/erohkohl/mlsolver) library for building and updating kripke model.
 
 ### Run instructions
-1. `pip3 install mesa --user`
-2. `git clone https://github.com/uberVelocity/Town-Of-Salem.git`
-3. `cd Town-Of-Salem/project/view/`
-4. `python3 sim.py`
+1. `git clone https://github.com/uberVelocity/Town-Of-Salem.git`
+2. `cd Town-Of-Salem`
+3. `pip3 install -r project/requirements.txt --no-index --find-links file:///tmp/packages`
+4. `cd project/view/`
+5. `python3 sim.py`
 
 ### Game setup
 The game consists of two phases:
