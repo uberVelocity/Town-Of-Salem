@@ -70,6 +70,22 @@ For most part of the simulation higher order is not used by the agents. Normally
 
 ### Action models
 
+In our simulation we haven't explicitly used action models. We modelled private announcement by removing corresponding relations from a Kripke model. Also defining action model for all possible actions would be quite problematic in out case given the variety of actions and outcome of those actions. Here we want to show a small part of ideal action model: action model for a sheriff action of inspecting agent 0.
+
+We define set of agents {A,B,C,D,E,F,G,H}.
+
+Then propositions are: 1a: A is a villager, 0a: A is mafioso. Similarly for all the other agents.
+
+Initial model would be hard to represent fully since it would consist of 50+ possible worlds so we will look at a subset of the following worlds<img src="C:\Uni. Year1\LAMAS\IMG_2565.jpg" alt="IMG_2565" style="zoom:10%;" />
+
+Here we show only two worlds out of the whole subset of worlds.(00111000 and 10101000).
+
+When sheriff inspect agent A he can learn if agent A's faction and as a result can distinguish those worlds. We can have a structure (Inspect,A) that corresponds to sheriff inspecting agent A.  State 00111000 is the result of executing action 0a and 10101000 is the result of executing 1a(of course its effects are more complicated in the whole model but for simplicity we look only at those two worlds). No one apart from sheriff can distinguish those worlds based on that action(Apart from agent A because obviously agent A know his own faction, but it is no connected to an action).
+
+<img src="C:\Uni. Year1\LAMAS\IMG_2566.jpg" alt="IMG_2566" style="zoom:10%;" />
+
+This action would give us additional worlds that would be indistinguishable for agents other than a sheriff. 
+
 ### Voting strategies
 In total we implemented 4 voting strategies for the agents:
 
