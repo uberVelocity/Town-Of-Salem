@@ -110,7 +110,7 @@ In total we implemented 4 voting strategies for the agents:
 
 ### Results
 
-![image-20200703114007801](results.png)
+![results.png](results.png)
 
 ### Discussion
 
