@@ -35,10 +35,8 @@ We use python multi-agent library [MESA](https://github.com/projectmesa/mesa) fo
 ### Run instructions
 1. `pip3 install mesa --user`
 2. `git clone https://github.com/uberVelocity/Town-Of-Salem.git`
-3. `cd Town-Of-Salem`
-4. `cd project`
-5. `python3 main.py <num_of_runs> <interaction_mode>`
-where `num_of_runs` constitutes the number of games to simulate (`num_of_runs` := 1..N | N is a natural number) and `interaction_mode` shows the interaction of each villager during every `round` of `every` game. This flag can take any string and interaction mode will be enabled. It is recommended to use interaction mode when running only `one` round to easily track the progress of the simulation. The results are saved automatically after every `run` inside the `results` file. Even if the simulation is stopped midway, the progress of the results are saved in `results`.
+3. `cd Town-Of-Salem/project/view/`
+4. `python3 sim.py`
 
 ### Game setup
 The game consists of two phases:
