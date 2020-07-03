@@ -27,21 +27,7 @@ happens. If you target yourself, you will use your bulletproof vest, gaining a t
 
 6. Godfather - You can pick a target to attack each night.If there is a Mafioso (and they are not role blocked that night), then they will do the killing for you.If a Mafioso is alive when you die, the Mafioso will be promoted to Godfather.If there is no Mafioso when you die, whichever member of the Mafia joins the lobby first will be promoted to a Mafioso.
 7. Mafioso - Each night, you can pick one person to vote to kill; however, if there is a Godfather and they pick someone else, their decision will override yours, and you will attack their target instead.
-8. Framer - Framing a target will show them as Mobster for the entire night should they be investigated by the sheriff.
-We also thought about replacing some of the original roles with roles that would benefit or interact with logical model more
-
-### ***Potential roles***
-
-**Villagers**
-
-9. Oracle - oracle is capable of acquiring some/all knowledge of other agent in the simulation(amount of knowledge learned is currently under consideration). For an agent it chooses an agent and gets all or part of his knowledge(most likely part due to balancing of the game) 
-10. FBI agent - this role is an alternative to an alternative win condition. To win FBI agent need to discover the real world while at least one other villager is alive. Questioning action is available for FBI agent. FBI Agent questions another agent A and gets his knowledge about the agent B.
-
-**Mafia**
-
-11. Interrogator - Interrogates a targed and acquires its knowledge. Then shares it with the rest of the mafia.
-
-Most likely we will replace framer with interrogator since it will also remove false knowledge from the model and maybe just add a new villager role if this will not complicate the model by a lot.
+8. Back up - a member of Mafia that becomes a mafioso if both godfather and mafioso are dead.
 
 ## Setup
 We use python multi-agent library [MESA](https://github.com/projectmesa/mesa) for agent based modeling and [mlsolver](https://github.com/erohkohl/mlsolver) library for building and updating kripke model.
@@ -61,19 +47,23 @@ The game consists of two phases:
 
 **Voting phase** where agents choose who to lynch and vote yes and no for lynching of that person.
 
-### Preliminary results
-The game currently simulates the interactions between the townspeople using a random function. As such, no deliberations are being made on their decisions as of yet. Nevertheless, `100000` runs of the simulation have been run, upon which the results can be seen in the [results file](https://github.com/uberVelocity/Town-Of-Salem/blob/master/project/results).
 
 ## Epistemic model
-We want to model this game using epistemic logic. Given the set of agents {1..n}, formulae will be of the form (a,b) where a is a set {0..n-1} and b is {0,1}, where 0 means that the agent a is a villager and 1 means that the agent is a mafia. For now we use the game with 8 total agents with 5 of them being the villagers and 3 - mafia. A Kripke model will consist of set of all possible world for every possible combination with constraints of number of factions and the fact that the mafia knows the true world from the beginning. 
+Agents are represented as a set of propositional atoms(q,r etc.) where each propositional atom corresponds to one agent. Truth value of this propositional atom defines faction of an agent. If the atom is true the agent is a mafia, otherwise the agent is a villager. Kripke model consists of all possible worlds and relations between those worlds for each agent. For the sake of simplicity of implementation in our simulation world was represented by a string of 0s and 1s under assumptions that ith element of a string corresponds to some propositional atom. Set of relations was represented as a set of tuples between two indistibguishable worlds for each agent.
+
 An example of one of the world is - 11100000 which suggests that in that world agents 0-2 are mafia and the rest of the agents are villagers. In general we would have 2^n worlds but due to initial restrictions this number will be reduced by quite a bit. During the simmulation the complexity of the model will be reduced since most of the agents will acquire some knowledge during the game and that in turn will remove some of the existing relations in a model. On top of that every agent also has a knowledge base to be able to represent higher level knowledge. Initially villagers only know their faction and mafia knows everyones faction. 
 
 A simplified example of a world with 3 agents can be seen below. Agents 1,2 are the villagers while the agent 3 is mafia. In this example villager is represented by 1 and mafia is 0. As we can see both villagers can not distinguish between two world(world 110 is the real world)
 
 ![alt text](Kripke_model.png)
 
-An example of acquired knowledge can be a public announcement of the faction of lynched person or his last will. Using this knowledge Kripke model is reduced by removing relations that would contradict this knowledge. Agents may also get some knowledge from their actions. For example if lookout checks agent A and agent A visited agent B and agent B ended up dead lookput may infer that agent A is mafioso. Other example would be if the doctor visited agent A and he received a message that agent A survived thanks to his intervention the doctor may conclude that agent A is not a mafia(technically it is possible for mafioso to target another member of mafia but for simplicity we assumed that mafia do not kill its members).
+There are two ways of acquiring knowledge in the game: via public announcement or via provate announcement. Public announcements generaly happen when one of the agents die. In that case the faction of the dead agent becomes known to everyone. Another situation when we distribute information using public announcements is an action fo revealing a Major. If the Major decides to reveal himself his faction becomes known to everyone.
+
+During the game based on their actions agents can acquire knowledge that is only available to themselves. That information is added using private announcements. For example if lookout checks agent A and agent A visited agent B and agent B ended up dead lookput may infer that agent A is mafioso. Other example would be if the doctor visited agent A and he received a message that agent A survived thanks to his intervention the doctor may conclude that agent A is not a mafia(technically it is possible for mafioso to target another member of mafia but for simplicity we assumed that mafia do not kill its members).
+
 There might be a possiblity that some agents may acquire conflicting knowledge that still may reduce the compexity of a model(lookout seeing nultiple persons visiting the same agent) in this case an OR formula is built.
+
+When agents acquire new information in any way we remove all relations from the kripke model that contradicts new information.
 
 ### Higher order knowledge
 Higher order knowledge is not used that much in a simulation with the original role but it is important for the version with our sutom roles. Custom roles allows agents to acquire knowledge about agents knowledge and based on that knowledge they may alter their actions. We think of implementing different strategies regarding the last will(reveal of the knowledge after the death of an agent) but in the original variant mafia does not want to kill the villagers who know more information about mafia, because in that case that knowledge will become known to everyone via public announcement. On the other hand if we have a no last will variant of the game the mafia want to kill the person with the most knowledge about the mafia.
