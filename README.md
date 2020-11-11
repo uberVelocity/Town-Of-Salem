@@ -1,4 +1,4 @@
-# Town of salem
+# Town of Salem multi-agent systems simulation
 ## Introduction
 Town of Salem is an online browser game that pits players against each other in a game of intrigue and mystery. 
 
